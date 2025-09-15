@@ -1,5 +1,7 @@
 package com.aplication.rest.instruments.service;
 
+import com.aplication.rest.instruments.controllers.dto.ProductDTO;
+import com.aplication.rest.instruments.core.error_handling.Result;
 import com.aplication.rest.instruments.entities.Manufacturer;
 import com.aplication.rest.instruments.entities.Product;
 
@@ -9,13 +11,15 @@ import java.util.Optional;
 
 public interface IProductService {
 
-    List<Product> findAll();
+    Result<List<ProductDTO>> findAll();
 
-    Optional<Product> findById(Long id);
-
-    void save(Product product);
-
-    void deleteById(Long id);
+    Result<Optional<ProductDTO>> findById(Long id);
+    //Optional<Product> findById(Long id);
+    Result<ProductDTO> save(ProductDTO productDTO);
+    //void save(Product product);
+    Result<ProductDTO> deleteById(Long id);
+    //void deleteById(Long id);
+    Result<ProductDTO> update(Long id, ProductDTO productDTO);
 
     List<Product> findByPriceBetween(BigDecimal minPrice, BigDecimal maxPrice);
 

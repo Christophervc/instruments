@@ -28,8 +28,9 @@ public class ProductDAOImplement implements IProductDAO {
     }
 
     @Override
-    public void save(Product product) {
+    public Product save(Product product) {
         productRepository.save(product);
+        return product;
     }
 
     @Override

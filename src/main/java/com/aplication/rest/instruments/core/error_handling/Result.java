@@ -1,5 +1,7 @@
 package com.aplication.rest.instruments.core.error_handling;
 
+import com.aplication.rest.instruments.entities.Product;
+
 import java.util.List;
 
 public record Result<T>(boolean isSuccess, T data, List<ApiError> errors) {

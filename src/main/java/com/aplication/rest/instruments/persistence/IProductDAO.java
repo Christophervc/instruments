@@ -13,7 +13,7 @@ public interface IProductDAO {
 
     Optional<Product> findById(Long id);
 
-    void save(Product product);
+    Product save(Product product);
 
     void deleteById(Long id);
 
