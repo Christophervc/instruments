@@ -26,8 +26,9 @@ public class ManufacturerDAOImplement implements IManufacturerDAO {
     }
 
     @Override
-    public void save(Manufacturer manufacturer) {
+    public Manufacturer save(Manufacturer manufacturer) {
         manufacturerRepository.save(manufacturer);
+        return manufacturer;
     }
 
     @Override

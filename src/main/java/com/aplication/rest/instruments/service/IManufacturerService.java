@@ -1,5 +1,7 @@
 package com.aplication.rest.instruments.service;
 
+import com.aplication.rest.instruments.controllers.dto.ManufacturerDTO;
+import com.aplication.rest.instruments.core.error_handling.Result;
 import com.aplication.rest.instruments.entities.Manufacturer;
 
 import java.util.List;
@@ -7,11 +9,11 @@ import java.util.Optional;
 
 public interface IManufacturerService {
 
-    List<Manufacturer> findAll();
+    Result<List<ManufacturerDTO>> findAll();
 
-    Optional<Manufacturer> findById(Long id);
+    Result<Optional<ManufacturerDTO>> findById(Long id);
 
-    void save(Manufacturer manufacturer);
+    Result<ManufacturerDTO> save(ManufacturerDTO manufacturerDTO);
 
-    void deleteById(Long id);
+    Result<ManufacturerDTO> deleteById(Long id);
 }

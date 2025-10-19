@@ -12,7 +12,7 @@ public interface IManufacturerDAO {
 
     Optional<Manufacturer> findById(Long id);
 
-    void save(Manufacturer manufacturer);
+    Manufacturer save(Manufacturer manufacturer);
 
     void deleteById(Long id);
 
