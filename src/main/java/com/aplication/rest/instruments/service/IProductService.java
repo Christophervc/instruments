@@ -14,13 +14,14 @@ public interface IProductService {
     Result<List<ProductDTO>> findAll();
 
     Result<Optional<ProductDTO>> findById(Long id);
-    //Optional<Product> findById(Long id);
+
     Result<ProductDTO> save(ProductDTO productDTO);
-    //void save(Product product);
+
     Result<ProductDTO> deleteById(Long id);
-    //void deleteById(Long id);
+
     Result<ProductDTO> update(Long id, ProductDTO productDTO);
 
+    /*
     List<Product> findByPriceBetween(BigDecimal minPrice, BigDecimal maxPrice);
 
     List<Product> findByManufacturer(Manufacturer manufacturer);
@@ -28,5 +29,5 @@ public interface IProductService {
     List<Product> findAllSortedByNameAsc();
 
     List<Product> findAllSortedByNameDesc();
-
+    */
 }

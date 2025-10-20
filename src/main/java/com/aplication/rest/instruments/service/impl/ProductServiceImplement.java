@@ -10,7 +10,6 @@ import com.aplication.rest.instruments.persistence.IProductDAO;
 import com.aplication.rest.instruments.service.IProductService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
-import java.math.BigDecimal;
 import java.util.List;
 import java.util.Optional;
 
@@ -128,7 +127,8 @@ public class ProductServiceImplement implements IProductService {
         );
     }
 
-    @Override
+
+    /*@Override
     public List<Product> findByPriceBetween(BigDecimal minPrice, BigDecimal maxPrice) {
         return productDAO.findByPriceBetween(minPrice, maxPrice);
     }
@@ -146,5 +146,5 @@ public class ProductServiceImplement implements IProductService {
     @Override
     public List<Product> findAllSortedByNameDesc() {
         return productDAO.findAllSortedByNameDesc();
-    }
+    }*/
 }
