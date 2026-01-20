@@ -1,14 +1,13 @@
 package com.aplication.rest.instruments.service.impl;
 
 import com.aplication.rest.instruments.controllers.dto.ManufacturerDTO;
-import com.aplication.rest.instruments.controllers.dto.ProductDTO;
 import com.aplication.rest.instruments.core.error_handling.ApiError;
 import com.aplication.rest.instruments.core.error_handling.Result;
 import com.aplication.rest.instruments.core.exceptions.NotFoundException;
 import com.aplication.rest.instruments.entities.Manufacturer;
-import com.aplication.rest.instruments.entities.Product;
+import com.aplication.rest.instruments.mapper.ManufacturerMapper;
 import com.aplication.rest.instruments.persistence.IManufacturerDAO;
-import com.aplication.rest.instruments.persistence.IProductDAO;
+import com.aplication.rest.instruments.repository.ManufacturerRepository;
 import com.aplication.rest.instruments.service.IManufacturerService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
@@ -19,82 +18,53 @@ import java.util.Optional;
 @Service
 public class ManufacturerServiceImplement implements IManufacturerService {
     @Autowired
-    private IManufacturerDAO manufacturerDAO;
+    private ManufacturerRepository manufacturerRepository;
+    @Autowired
+    private ManufacturerMapper manufacturerMapper;
 
     @Override
     public Result<List<ManufacturerDTO>> findAll() {
         try {
-            List<Manufacturer> manufacturers = manufacturerDAO.findAll();
+            List<Manufacturer> manufacturers = (List<Manufacturer>) manufacturerRepository.findAll();
 
-            if (manufacturerDAO.findAll().isEmpty()) return Result.success(List.of());
-            List<ManufacturerDTO> manufaturerDTO = manufacturers.stream().map(manufacturer -> ManufacturerDTO.builder()
-            .id(manufacturer.getId())
-            .name(manufacturer.getName())
-            .build()).toList();
+            if (((List<Manufacturer>) manufacturerRepository.findAll()).isEmpty()) return Result.success(List.of());
+            List<ManufacturerDTO> manufaturerDTO = manufacturers.stream().map(manufacturer -> manufacturerMapper.toDTO(manufacturer)).toList();
             return Result.success(manufaturerDTO);
-
         } catch (Exception e) {
-            ApiError error = new ApiError("DATABASE ERROR", "Error retrieving manufacturers");
-            return Result.isFailure(error);
+            return Result.isFailure(new ApiError("DATABASE ERROR", "Error retrieving manufacturers"));
         }
-
     }
 
     @Override
     public Result<Optional<ManufacturerDTO>> findById(Long id) {
         try {
-            Optional<Manufacturer> optionalManufacturer = manufacturerDAO.findById(id);
+            Optional<Manufacturer> optionalManufacturer = manufacturerRepository.findById(id);
             if (optionalManufacturer.isEmpty()) return Result.success(Optional.empty());
             Manufacturer manufacturer = optionalManufacturer.get();
-            ManufacturerDTO manufacturerDTO = ManufacturerDTO.builder()
-            .id(manufacturer.getId())
-            .name(manufacturer.getName())
-            .build();
+            ManufacturerDTO manufacturerDTO = manufacturerMapper.toDTO(manufacturer);
             return Result.success(Optional.of(manufacturerDTO));
         } catch (Exception e) {
-            ApiError error = new ApiError("DATABASE ERROR", "Error retrieving a manufacturer");
-            return Result.isFailure(error);
+            return Result.isFailure(new ApiError("DATABASE ERROR", "Error retrieving a manufacturer"));
         }
     }
 
     @Override
     public Result<ManufacturerDTO> save(ManufacturerDTO manufacturerDTO) {
       if (manufacturerDTO.getName().isBlank()){
-        ApiError error = new ApiError("BAD REQUEST", "Name is required");
-        return Result.isFailure(error);
+        return Result.isFailure(new ApiError("BAD REQUEST", "Name is required"));
       }
-      Manufacturer manufacturer = Manufacturer.builder().name(manufacturerDTO.getName()).build();
-      Manufacturer savedManufacturer = manufacturerDAO.save(manufacturer);
-      return Result.success(ManufacturerDTO.builder().id(savedManufacturer.getId()).name(savedManufacturer.getName()).build());
+
+      Manufacturer manufacturer = manufacturerMapper.toEntity(manufacturerDTO);
+      Manufacturer savedManufacturer = manufacturerRepository.save(manufacturer);
+      ManufacturerDTO savedManufacturerDTO = manufacturerMapper.toDTO(savedManufacturer);
+      return Result.success(savedManufacturerDTO);
     }
 
     @Override
     public Result<ManufacturerDTO> deleteById(Long id) {
-        Manufacturer manufacturer = manufacturerDAO.findById(id).orElseThrow(()-> new NotFoundException("Not found manufacturer with id: " +id));
-        ManufacturerDTO manufacturerDTO = ManufacturerDTO.builder().id(manufacturer.getId()).name(manufacturer.getName()).build();
-        manufacturerDAO.deleteById(id);
+        Manufacturer manufacturer = manufacturerRepository.findById(id).orElseThrow(()-> new NotFoundException("Not found manufacturer with id: " +id));
+        ManufacturerDTO manufacturerDTO = manufacturerMapper.toDTO(manufacturer);
+        manufacturerRepository.deleteById(id);
         return Result.success(manufacturerDTO);
     }
-
-    /*
-    @Override
-    public List<Manufacturer> findAll() {
-        return manufacturerDAO.findAll();
-    }
-
-    @Override
-    public Optional<Manufacturer> findById(Long id) {
-        return manufacturerDAO.findById(id);
-    }
-
-    @Override
-    public void save(Manufacturer manufacturer) {
-        manufacturerDAO.save(manufacturer);
-    }
-
-    @Override
-    public void deleteById(Long id) {
-        manufacturerDAO.deleteById(id);
-    }
-    */
 }
