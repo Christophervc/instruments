@@ -14,9 +14,6 @@ public class OpenApi {
     @Value("${app.openapi.dev-url}")
     private String devUrl;
 
-    @Value("${app.openapi.prod-url}")
-    private String prodUrl;
-
     @Bean
     public OpenAPI myOpenAPI() {
 

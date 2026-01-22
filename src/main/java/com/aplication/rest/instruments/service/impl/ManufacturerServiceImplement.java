@@ -6,7 +6,6 @@ import com.aplication.rest.instruments.core.error_handling.Result;
 import com.aplication.rest.instruments.core.exceptions.NotFoundException;
 import com.aplication.rest.instruments.entities.Manufacturer;
 import com.aplication.rest.instruments.mapper.ManufacturerMapper;
-import com.aplication.rest.instruments.persistence.IManufacturerDAO;
 import com.aplication.rest.instruments.repository.ManufacturerRepository;
 import com.aplication.rest.instruments.service.IManufacturerService;
 import org.springframework.beans.factory.annotation.Autowired;
