@@ -49,14 +49,18 @@ public class ManufacturerServiceImplement implements IManufacturerService {
 
     @Override
     public Result<ManufacturerDTO> save(ManufacturerDTO manufacturerDTO) {
-      if (manufacturerDTO.getName().isBlank()){
-        return Result.isFailure(new ApiError("BAD REQUEST", "Name is required"));
-      }
-
       Manufacturer manufacturer = manufacturerMapper.toEntity(manufacturerDTO);
       Manufacturer savedManufacturer = manufacturerRepository.save(manufacturer);
       ManufacturerDTO savedManufacturerDTO = manufacturerMapper.toDTO(savedManufacturer);
       return Result.success(savedManufacturerDTO);
+    }
+
+    @Override
+    public Result<ManufacturerDTO> update(Long id, ManufacturerDTO manufacturerDTO) {
+        Manufacturer existingManufacturer = manufacturerRepository.findById(id).orElseThrow(()-> new NotFoundException("Not found a manufacturer with id: " + id));
+        manufacturerMapper.updateManufacturerFromDto(manufacturerDTO, existingManufacturer);
+        Manufacturer savedManufacturer = manufacturerRepository.save(existingManufacturer);
+        return Result.success(manufacturerMapper.toDTO(savedManufacturer));
     }
 
     @Override

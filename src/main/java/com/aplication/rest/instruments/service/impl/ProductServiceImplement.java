@@ -47,15 +47,6 @@ public class ProductServiceImplement implements IProductService {
 
     @Override
     public Result<ProductDTO> save(ProductDTO productDTO) {
-
-        if (productDTO.getName().isBlank() ||
-                productDTO.getType().isBlank() ||
-                productDTO.getDescription().isBlank() ||
-                productDTO.getPrice() == null ||
-                productDTO.getManufacturer() == null) {
-            return Result.isFailure(new ApiError("BAD_REQUEST", "Please enter the following fields: name, type, description, price, manufacturer"));
-        }
-
         Product product = productMapper.toEntity(productDTO);
         Product savedProduct = productRepository.save(product);
         ProductDTO savedProductDTO = productMapper.toDTO(savedProduct);

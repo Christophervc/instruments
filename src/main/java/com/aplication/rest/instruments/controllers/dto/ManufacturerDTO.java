@@ -1,6 +1,7 @@
 package com.aplication.rest.instruments.controllers.dto;
 
 import com.aplication.rest.instruments.entities.Product;
+import jakarta.validation.constraints.NotBlank;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
@@ -18,6 +19,7 @@ public class ManufacturerDTO {
 
     private Long id;
 
+    @NotBlank(message = "El nombre del fabricante es obligatorio")
     private String name;
 
     private List<Product> productList = new ArrayList<>();

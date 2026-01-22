@@ -15,5 +15,7 @@ public interface IManufacturerService {
 
     Result<ManufacturerDTO> save(ManufacturerDTO manufacturerDTO);
 
+    Result<ManufacturerDTO> update(Long id, ManufacturerDTO manufacturerDTO);
+
     Result<ManufacturerDTO> deleteById(Long id);
 }

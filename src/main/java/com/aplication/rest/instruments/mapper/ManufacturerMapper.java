@@ -1,10 +1,7 @@
 package com.aplication.rest.instruments.mapper;
 import com.aplication.rest.instruments.controllers.dto.ManufacturerDTO;
 import com.aplication.rest.instruments.entities.Manufacturer;
-import org.mapstruct.Mapper;
-import org.mapstruct.Mapping;
-import org.mapstruct.factory.Mappers;
-
+import org.mapstruct.*;
 import java.util.List;
 
 @Mapper(componentModel = "spring")
@@ -16,5 +13,8 @@ public interface ManufacturerMapper {
     Manufacturer toEntity(ManufacturerDTO manufacturerDTO);
 
     List<ManufacturerDTO> toDTOList(List<Manufacturer> manufacturers);
+
+    @BeanMapping(nullValuePropertyMappingStrategy = NullValuePropertyMappingStrategy.IGNORE)
+    void updateManufacturerFromDto(ManufacturerDTO dto, @MappingTarget Manufacturer manufacturer);
 
 }
