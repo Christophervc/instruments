@@ -1,8 +1,7 @@
-package com.aplication.rest.instruments.controllers;
+package com.aplication.rest.instruments.product;
 
-import com.aplication.rest.instruments.controllers.dto.ProductDTO;
+import com.aplication.rest.instruments.product.dto.ProductDTO;
 import com.aplication.rest.instruments.core.error_handling.Result;
-import com.aplication.rest.instruments.service.IProductService;
 import jakarta.validation.Valid;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;

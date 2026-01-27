@@ -1,7 +1,7 @@
-package com.aplication.rest.instruments.controllers.dto;
+package com.aplication.rest.instruments.product.dto;
 
 
-import com.aplication.rest.instruments.entities.Manufacturer;
+import com.aplication.rest.instruments.manufacturer.Manufacturer;
 
 import jakarta.validation.constraints.DecimalMin;
 import jakarta.validation.constraints.NotBlank;

@@ -1,13 +1,9 @@
-package com.aplication.rest.instruments.service.impl;
+package com.aplication.rest.instruments.manufacturer;
 
-import com.aplication.rest.instruments.controllers.dto.ManufacturerDTO;
+import com.aplication.rest.instruments.manufacturer.dto.ManufacturerDTO;
 import com.aplication.rest.instruments.core.error_handling.ApiError;
 import com.aplication.rest.instruments.core.error_handling.Result;
 import com.aplication.rest.instruments.core.exceptions.NotFoundException;
-import com.aplication.rest.instruments.entities.Manufacturer;
-import com.aplication.rest.instruments.mapper.ManufacturerMapper;
-import com.aplication.rest.instruments.repository.ManufacturerRepository;
-import com.aplication.rest.instruments.service.IManufacturerService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 

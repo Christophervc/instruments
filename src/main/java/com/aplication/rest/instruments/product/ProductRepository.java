@@ -1,8 +1,7 @@
-package com.aplication.rest.instruments.repository;
+package com.aplication.rest.instruments.product;
 
 
-import com.aplication.rest.instruments.entities.Manufacturer;
-import com.aplication.rest.instruments.entities.Product;
+import com.aplication.rest.instruments.manufacturer.Manufacturer;
 import org.springframework.data.repository.CrudRepository;
 import org.springframework.stereotype.Repository;
 

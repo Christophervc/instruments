@@ -1,6 +1,6 @@
-package com.aplication.rest.instruments.controllers.dto;
+package com.aplication.rest.instruments.manufacturer.dto;
 
-import com.aplication.rest.instruments.entities.Product;
+import com.aplication.rest.instruments.product.Product;
 import jakarta.validation.constraints.NotBlank;
 import lombok.AllArgsConstructor;
 import lombok.Builder;

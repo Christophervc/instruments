@@ -1,6 +1,5 @@
-package com.aplication.rest.instruments.mapper;
-import com.aplication.rest.instruments.controllers.dto.ManufacturerDTO;
-import com.aplication.rest.instruments.entities.Manufacturer;
+package com.aplication.rest.instruments.manufacturer;
+import com.aplication.rest.instruments.manufacturer.dto.ManufacturerDTO;
 import org.mapstruct.*;
 import java.util.List;
 

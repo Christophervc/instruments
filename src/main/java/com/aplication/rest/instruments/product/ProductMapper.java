@@ -1,10 +1,9 @@
-package com.aplication.rest.instruments.mapper;
-import com.aplication.rest.instruments.controllers.dto.ProductDTO;
-import com.aplication.rest.instruments.entities.Product;
+package com.aplication.rest.instruments.product;
+import com.aplication.rest.instruments.product.dto.ProductDTO;
 import org.mapstruct.*;
 import java.util.List;
 
-@Mapper(componentModel = "spring")
+@Mapper(componentModel = "spring") // annotation for dependency injection
 public interface ProductMapper {
 
     ProductDTO toDTO(Product product);
@@ -17,5 +16,4 @@ public interface ProductMapper {
     @BeanMapping(nullValuePropertyMappingStrategy = NullValuePropertyMappingStrategy.IGNORE)
     void updateProductFromDTO(ProductDTO productDTO, @MappingTarget Product product);
 
-    //List<Product> toEntityList(List<ProductDTO> productDTOs);
 }

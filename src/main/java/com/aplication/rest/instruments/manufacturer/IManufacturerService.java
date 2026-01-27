@@ -1,8 +1,7 @@
-package com.aplication.rest.instruments.service;
+package com.aplication.rest.instruments.manufacturer;
 
-import com.aplication.rest.instruments.controllers.dto.ManufacturerDTO;
+import com.aplication.rest.instruments.manufacturer.dto.ManufacturerDTO;
 import com.aplication.rest.instruments.core.error_handling.Result;
-import com.aplication.rest.instruments.entities.Manufacturer;
 
 import java.util.List;
 import java.util.Optional;

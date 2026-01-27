@@ -1,13 +1,9 @@
-package com.aplication.rest.instruments.service.impl;
+package com.aplication.rest.instruments.product;
 
 import com.aplication.rest.instruments.core.error_handling.ApiError;
 import com.aplication.rest.instruments.core.error_handling.Result;
-import com.aplication.rest.instruments.controllers.dto.ProductDTO;
+import com.aplication.rest.instruments.product.dto.ProductDTO;
 import com.aplication.rest.instruments.core.exceptions.NotFoundException;
-import com.aplication.rest.instruments.entities.Product;
-import com.aplication.rest.instruments.mapper.ProductMapper;
-import com.aplication.rest.instruments.repository.ProductRepository;
-import com.aplication.rest.instruments.service.IProductService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import java.util.List;
@@ -69,24 +65,4 @@ public class ProductServiceImplement implements IProductService {
         productRepository.deleteById(id);
         return Result.success(productDTO);
     }
-
-    /*@Override
-    public List<Product> findByPriceBetween(BigDecimal minPrice, BigDecimal maxPrice) {
-        return productDAO.findByPriceBetween(minPrice, maxPrice);
-    }
-
-    @Override
-    public List<Product> findByManufacturer(Manufacturer manufacturer) {
-        return productDAO.findByManufacturer(manufacturer);
-    }
-
-    @Override
-    public List<Product> findAllSortedByNameAsc() {
-        return productDAO.findAllSortedByNameAsc();
-    }
-
-    @Override
-    public List<Product> findAllSortedByNameDesc() {
-        return productDAO.findAllSortedByNameDesc();
-    }*/
 }

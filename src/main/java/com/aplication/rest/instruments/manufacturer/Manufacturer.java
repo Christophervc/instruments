@@ -1,5 +1,6 @@
-package com.aplication.rest.instruments.entities;
+package com.aplication.rest.instruments.manufacturer;
 
+import com.aplication.rest.instruments.product.Product;
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import jakarta.persistence.*;
 import lombok.*;
