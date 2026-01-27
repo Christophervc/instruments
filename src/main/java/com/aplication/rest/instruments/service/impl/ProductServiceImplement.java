@@ -12,6 +12,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import java.util.List;
 import java.util.Optional;
+import java.util.UUID;
 
 
 @Service
@@ -33,7 +34,7 @@ public class ProductServiceImplement implements IProductService {
     }
 
     @Override
-    public Result<Optional<ProductDTO>> findById(Long id) {
+    public Result<Optional<ProductDTO>> findById(UUID id) {
         Optional<Product> productOptional = productRepository.findById(id);
         if (productOptional.isPresent()){
             Product product = productOptional.get();
@@ -54,7 +55,7 @@ public class ProductServiceImplement implements IProductService {
     }
 
     @Override
-    public Result<ProductDTO> update(Long id, ProductDTO productDTO) {
+    public Result<ProductDTO> update(UUID id, ProductDTO productDTO) {
         Product existingProduct = productRepository.findById(id).orElseThrow(() -> new NotFoundException("Product not found with id: " + id));
         productMapper.updateProductFromDTO(productDTO, existingProduct);
         Product updatedProduct = productRepository.save(existingProduct);
@@ -62,7 +63,7 @@ public class ProductServiceImplement implements IProductService {
     }
 
     @Override
-    public Result<ProductDTO> deleteById(Long id) {
+    public Result<ProductDTO> deleteById(UUID id) {
         Product product = productRepository.findById(id).orElseThrow(() -> new NotFoundException("Product not found with id: "+id));
         ProductDTO productDTO = productMapper.toDTO(product);
         productRepository.deleteById(id);

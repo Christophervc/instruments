@@ -13,6 +13,7 @@ import org.springframework.stereotype.Service;
 
 import java.util.List;
 import java.util.Optional;
+import java.util.UUID;
 
 @Service
 public class ManufacturerServiceImplement implements IManufacturerService {
@@ -35,7 +36,7 @@ public class ManufacturerServiceImplement implements IManufacturerService {
     }
 
     @Override
-    public Result<Optional<ManufacturerDTO>> findById(Long id) {
+    public Result<Optional<ManufacturerDTO>> findById(UUID id) {
         try {
             Optional<Manufacturer> optionalManufacturer = manufacturerRepository.findById(id);
             if (optionalManufacturer.isEmpty()) return Result.success(Optional.empty());
@@ -56,7 +57,7 @@ public class ManufacturerServiceImplement implements IManufacturerService {
     }
 
     @Override
-    public Result<ManufacturerDTO> update(Long id, ManufacturerDTO manufacturerDTO) {
+    public Result<ManufacturerDTO> update(UUID id, ManufacturerDTO manufacturerDTO) {
         Manufacturer existingManufacturer = manufacturerRepository.findById(id).orElseThrow(()-> new NotFoundException("Not found a manufacturer with id: " + id));
         manufacturerMapper.updateManufacturerFromDto(manufacturerDTO, existingManufacturer);
         Manufacturer savedManufacturer = manufacturerRepository.save(existingManufacturer);
@@ -64,7 +65,7 @@ public class ManufacturerServiceImplement implements IManufacturerService {
     }
 
     @Override
-    public Result<ManufacturerDTO> deleteById(Long id) {
+    public Result<ManufacturerDTO> deleteById(UUID id) {
         Manufacturer manufacturer = manufacturerRepository.findById(id).orElseThrow(()-> new NotFoundException("Not found manufacturer with id: " +id));
         ManufacturerDTO manufacturerDTO = manufacturerMapper.toDTO(manufacturer);
         manufacturerRepository.deleteById(id);

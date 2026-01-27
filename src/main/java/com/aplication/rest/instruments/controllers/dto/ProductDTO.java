@@ -13,6 +13,7 @@ import lombok.Data;
 import lombok.NoArgsConstructor;
 
 import java.math.BigDecimal;
+import java.util.UUID;
 
 @Data
 @AllArgsConstructor
@@ -21,7 +22,7 @@ import java.math.BigDecimal;
 
 public class ProductDTO {
 
-    private Long id;
+    private UUID id;
     @NotBlank(message = "El nombre no debe estar vacio")
     private String name;
     @NotBlank(message = "El tipo es obligatorio")

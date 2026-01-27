@@ -9,6 +9,7 @@ import lombok.NoArgsConstructor;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.UUID;
 
 @Data
 @AllArgsConstructor
@@ -17,7 +18,7 @@ import java.util.List;
 
 public class ManufacturerDTO {
 
-    private Long id;
+    private UUID id;
 
     @NotBlank(message = "El nombre del fabricante es obligatorio")
     private String name;

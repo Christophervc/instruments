@@ -14,6 +14,7 @@ import java.net.URI;
 import java.net.URISyntaxException;
 import java.util.List;
 import java.util.Optional;
+import java.util.UUID;
 
 @RestController
 @RequestMapping("api/v1/manufacturers")
@@ -28,7 +29,7 @@ public class ManufacturerController {
         return ResponseEntity.ok(manufacturerService.findAll());
     }
     @GetMapping ("/{id}")
-    public ResponseEntity<Result<Optional<ManufacturerDTO>>> findById(@PathVariable Long id){
+    public ResponseEntity<Result<Optional<ManufacturerDTO>>> findById(@PathVariable UUID id){
         return ResponseEntity.ok(manufacturerService.findById(id));
     }
     @PostMapping()
@@ -38,12 +39,12 @@ public class ManufacturerController {
                 .body(result);
     }
     @PutMapping("/{id}")
-    public ResponseEntity<Result<ManufacturerDTO>> update(@PathVariable Long id, @Valid @RequestBody ManufacturerDTO manufacturerDTO) {
+    public ResponseEntity<Result<ManufacturerDTO>> update(@PathVariable UUID id, @Valid @RequestBody ManufacturerDTO manufacturerDTO) {
         return ResponseEntity.ok(manufacturerService.update(id, manufacturerDTO));
     }
 
     @DeleteMapping("/{id}")
-    public ResponseEntity<Result<ManufacturerDTO>> deleteById(@PathVariable Long id){
+    public ResponseEntity<Result<ManufacturerDTO>> deleteById(@PathVariable UUID id){
         return ResponseEntity.ok(manufacturerService.deleteById(id));
     }
 }

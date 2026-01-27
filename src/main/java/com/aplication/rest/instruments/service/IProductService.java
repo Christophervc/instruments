@@ -8,18 +8,19 @@ import com.aplication.rest.instruments.entities.Product;
 import java.math.BigDecimal;
 import java.util.List;
 import java.util.Optional;
+import java.util.UUID;
 
 public interface IProductService {
 
     Result<List<ProductDTO>> findAll();
 
-    Result<Optional<ProductDTO>> findById(Long id);
+    Result<Optional<ProductDTO>> findById(UUID id);
 
     Result<ProductDTO> save(ProductDTO productDTO);
 
-    Result<ProductDTO> deleteById(Long id);
+    Result<ProductDTO> deleteById(UUID id);
 
-    Result<ProductDTO> update(Long id, ProductDTO productDTO);
+    Result<ProductDTO> update(UUID id, ProductDTO productDTO);
 
     /*
     List<Product> findByPriceBetween(BigDecimal minPrice, BigDecimal maxPrice);

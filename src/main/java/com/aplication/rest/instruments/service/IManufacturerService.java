@@ -6,16 +6,17 @@ import com.aplication.rest.instruments.entities.Manufacturer;
 
 import java.util.List;
 import java.util.Optional;
+import java.util.UUID;
 
 public interface IManufacturerService {
 
     Result<List<ManufacturerDTO>> findAll();
 
-    Result<Optional<ManufacturerDTO>> findById(Long id);
+    Result<Optional<ManufacturerDTO>> findById(UUID id);
 
     Result<ManufacturerDTO> save(ManufacturerDTO manufacturerDTO);
 
-    Result<ManufacturerDTO> update(Long id, ManufacturerDTO manufacturerDTO);
+    Result<ManufacturerDTO> update(UUID id, ManufacturerDTO manufacturerDTO);
 
-    Result<ManufacturerDTO> deleteById(Long id);
+    Result<ManufacturerDTO> deleteById(UUID id);
 }

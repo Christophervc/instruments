@@ -3,9 +3,11 @@ package com.aplication.rest.instruments.entities;
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import jakarta.persistence.*;
 import lombok.*;
+import org.hibernate.annotations.UuidGenerator;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.UUID;
 
 @Setter
 @Getter
@@ -17,8 +19,10 @@ import java.util.List;
 
 public class Manufacturer {
     @Id
-    @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private Long id;
+    @GeneratedValue
+    @UuidGenerator(style = UuidGenerator.Style.TIME)
+    @Column(columnDefinition = "uuid", updatable = false, nullable = false)
+    private UUID id;
     @Column(name = "name")
     private String name;
 

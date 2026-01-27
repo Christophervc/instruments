@@ -4,6 +4,14 @@ target/
 !**/src/main/**/target/
 !**/src/test/**/target/
 
+application-dev.properties
+application-local.properties
+application-prod.properties
+
+#env variable
+.env
+.DS_store
+
 ### STS ###
 .apt_generated
 .classpath

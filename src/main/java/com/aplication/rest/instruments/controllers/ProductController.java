@@ -12,6 +12,7 @@ import java.net.URI;
 import java.net.URISyntaxException;
 import java.util.List;
 import java.util.Optional;
+import java.util.UUID;
 
 @RestController
 @RequestMapping("/api/v1/products")
@@ -26,7 +27,7 @@ public class ProductController {
     }
 
     @GetMapping("/{id}")
-    public ResponseEntity<Result<Optional<ProductDTO>>> findById(@PathVariable Long id) {
+    public ResponseEntity<Result<Optional<ProductDTO>>> findById(@PathVariable UUID id) {
         return ResponseEntity.ok(productService.findById(id));
     }
 
@@ -38,12 +39,12 @@ public class ProductController {
     }
 
     @DeleteMapping("/{id}")
-    public ResponseEntity<Result<ProductDTO>> deleteById(@PathVariable Long id) {
+    public ResponseEntity<Result<ProductDTO>> deleteById(@PathVariable UUID id) {
         return ResponseEntity.ok(productService.deleteById(id));
     }
 
     @PutMapping("/{id}")
-    public ResponseEntity<Result<ProductDTO>> update(@PathVariable Long id, @Valid @RequestBody ProductDTO productDTO) {
+    public ResponseEntity<Result<ProductDTO>> update(@PathVariable UUID id, @Valid @RequestBody ProductDTO productDTO) {
         return ResponseEntity.ok(productService.update(id, productDTO));
     }
 }
