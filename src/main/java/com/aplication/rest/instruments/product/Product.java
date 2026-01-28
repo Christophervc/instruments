@@ -1,6 +1,7 @@
 package com.aplication.rest.instruments.product;
 
 import com.aplication.rest.instruments.manufacturer.Manufacturer;
+import com.aplication.rest.instruments.product.enums.InstrumentType;
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import jakarta.persistence.*;
 import lombok.*;
@@ -25,12 +26,24 @@ public class Product {
     private UUID id;
     @Column(name = "name")
     private String name;
+    @Enumerated(EnumType.STRING)
     @Column(name = "type")
-    private String type;
-    @Column(name = "description")
+    private InstrumentType type;
+    @Column(name = "description", length = 1000)
     private String description;
     @Column(name = "price")
     private BigDecimal price;
+    @Column(name="slug", nullable = false, unique = true)
+    private String slug;
+    @Column(name = "sku", nullable = false, unique = true)
+    private String sku;
+    @Column(name = "stock")
+    private Integer stock;
+    @Column(name = "is_active")
+    @Builder.Default
+    private Boolean active = true;
+    @Column(name = "imageUrl")
+    private String image_url;
     @ManyToOne
     @JoinColumn(name = "manufacturer_id", nullable = false)
     @JsonIgnore

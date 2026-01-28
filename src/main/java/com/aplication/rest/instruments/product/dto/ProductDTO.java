@@ -3,10 +3,8 @@ package com.aplication.rest.instruments.product.dto;
 
 import com.aplication.rest.instruments.manufacturer.Manufacturer;
 
-import jakarta.validation.constraints.DecimalMin;
-import jakarta.validation.constraints.NotBlank;
-import jakarta.validation.constraints.NotNull;
-import jakarta.validation.constraints.Size;
+import com.aplication.rest.instruments.product.enums.InstrumentType;
+import jakarta.validation.constraints.*;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
@@ -23,15 +21,32 @@ import java.util.UUID;
 public class ProductDTO {
 
     private UUID id;
+
     @NotBlank(message = "El nombre no debe estar vacio")
     private String name;
-    @NotBlank(message = "El tipo es obligatorio")
-    private String type;
+
+    @NotNull(message = "El tipo de instrumento es obligatorio")
+    private InstrumentType type;
+
     @Size (min = 10, message = "La descripcion debe tener al menos 8 caracteres")
     private String description;
+
     @NotNull(message = "El precio es obligatorio")
     @DecimalMin(value ="100.0", message = "El precio debe ser mayor a 100")
     private BigDecimal price;
+
+    private String slug;
+
+    private String sku;
+
+    @NotNull(message = "El stock es obligatorio")
+    @Min(value = 0, message = "El stock no puede ser negativo")
+    private Integer stock;
+
+    private Boolean active;
+
+    private String imageUrl;
+
     @NotNull(message = "El fabricante es obligatorio")
     private Manufacturer manufacturer;
 

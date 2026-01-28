@@ -4,6 +4,9 @@ import com.aplication.rest.instruments.product.dto.ProductDTO;
 import com.aplication.rest.instruments.core.error_handling.Result;
 import jakarta.validation.Valid;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.web.PageableDefault;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
@@ -21,8 +24,8 @@ public class ProductController {
     private IProductService productService;
 
     @GetMapping()
-    public ResponseEntity<Result<List<ProductDTO>>> findAll() {
-        return ResponseEntity.ok(productService.findAll());
+    public ResponseEntity<Result<Page<ProductDTO>>> findAll(@PageableDefault(size = 10, page = 0, sort = "name") Pageable pageable) {
+        return ResponseEntity.ok(productService.findAll(pageable));
     }
 
     @GetMapping("/{id}")

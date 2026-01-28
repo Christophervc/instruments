@@ -2,14 +2,15 @@ package com.aplication.rest.instruments.product;
 
 import com.aplication.rest.instruments.product.dto.ProductDTO;
 import com.aplication.rest.instruments.core.error_handling.Result;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 
-import java.util.List;
 import java.util.Optional;
 import java.util.UUID;
 
 public interface IProductService {
 
-    Result<List<ProductDTO>> findAll();
+    Result<Page<ProductDTO>> findAll(Pageable pageable);
 
     Result<Optional<ProductDTO>> findById(UUID id);
 

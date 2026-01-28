@@ -4,9 +4,12 @@ import com.aplication.rest.instruments.core.error_handling.ApiError;
 import com.aplication.rest.instruments.core.error_handling.Result;
 import com.aplication.rest.instruments.product.dto.ProductDTO;
 import com.aplication.rest.instruments.core.exceptions.NotFoundException;
+import com.aplication.rest.instruments.product.utils.ProductHelper;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
-import java.util.List;
+
 import java.util.Optional;
 import java.util.UUID;
 
@@ -17,13 +20,15 @@ public class ProductServiceImplement implements IProductService {
     private ProductRepository productRepository;
     @Autowired
     private ProductMapper productMapper;
+    @Autowired
+    private ProductHelper productHelper;
 
     @Override
-    public Result<List<ProductDTO>> findAll(){
+    public Result<Page<ProductDTO>> findAll(Pageable pageable){
         try {
-            List<Product> products = (List<Product>) productRepository.findAll();
-            if(products.isEmpty()) return Result.success(List.of()); //return empty list
-            return Result.success(productMapper.toDTOList(products));
+            Page<Product> productsPage = productRepository.findAll(pageable);
+            Page<ProductDTO> dtoPage = productsPage.map(productMapper::toDTO);
+            return Result.success(dtoPage);
         } catch (Exception e){
             return Result.isFailure(new ApiError("DATABASE_ERROR", "ERROR RETRIEVING PRODUCTS"));
         }
@@ -45,6 +50,15 @@ public class ProductServiceImplement implements IProductService {
     @Override
     public Result<ProductDTO> save(ProductDTO productDTO) {
         Product product = productMapper.toEntity(productDTO);
+
+        if(product.getSku() == null || product.getSku().isBlank()){
+            product.setSku(productHelper.generateSku(product));
+        }
+        product.setSlug(productHelper.generateSlug(product.getName()));
+        if (product.getStock() == null){
+            product.setStock(0);
+        }
+
         Product savedProduct = productRepository.save(product);
         ProductDTO savedProductDTO = productMapper.toDTO(savedProduct);
         return Result.success(savedProductDTO);
