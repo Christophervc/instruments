@@ -1,19 +1,10 @@
 package com.aplication.rest.instruments.product;
-
-
-import com.aplication.rest.instruments.manufacturer.Manufacturer;
 import org.springframework.data.jpa.repository.JpaRepository;
+import org.springframework.data.jpa.repository.JpaSpecificationExecutor;
 import org.springframework.stereotype.Repository;
 
-import java.math.BigDecimal;
-import java.util.List;
 import java.util.UUID;
 
 @Repository
-public interface ProductRepository extends JpaRepository<Product, UUID> {
-
-    List<Product> findByPriceBetween(BigDecimal minPrice, BigDecimal maxPrice);
-    List<Product> findByManufacturer(Manufacturer manufacturer);
-    List<Product> findAllByOrderByNameAsc();
-    List<Product> findAllByOrderByNameDesc();
+public interface ProductRepository extends JpaRepository<Product, UUID>, JpaSpecificationExecutor<Product> {
 }

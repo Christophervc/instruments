@@ -5,6 +5,7 @@ import org.springframework.stereotype.Component;
 
 import java.text.Normalizer;
 import java.util.Locale;
+import java.util.UUID;
 import java.util.regex.Pattern;
 
 @Component
@@ -32,8 +33,8 @@ public class ProductHelper {
         if (product.getName() != null) {
             modelCode = getFirstChars(product.getName(), 3);
         }
-        long timestamp = System.currentTimeMillis() % 10000;
-        return (manufacturerCode + "-" + modelCode + "-" + timestamp).toUpperCase();
+        String randomID = UUID.randomUUID().toString().substring(0,4);
+        return (manufacturerCode + "-" + modelCode + "-" + randomID).toUpperCase();
     }
 
     private String getFirstChars(String text, int length) {

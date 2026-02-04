@@ -4,10 +4,13 @@ import com.aplication.rest.instruments.core.error_handling.ApiError;
 import com.aplication.rest.instruments.core.error_handling.Result;
 import com.aplication.rest.instruments.product.dto.ProductDTO;
 import com.aplication.rest.instruments.core.exceptions.NotFoundException;
+import com.aplication.rest.instruments.product.dto.ProductSearchCriteria;
 import com.aplication.rest.instruments.product.utils.ProductHelper;
+import com.aplication.rest.instruments.product.utils.ProductSpecification;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
+import org.springframework.data.jpa.domain.Specification;
 import org.springframework.stereotype.Service;
 
 import java.util.Optional;
@@ -24,9 +27,10 @@ public class ProductServiceImplement implements IProductService {
     private ProductHelper productHelper;
 
     @Override
-    public Result<Page<ProductDTO>> findAll(Pageable pageable){
+    public Result<Page<ProductDTO>> findAll(Pageable pageable, ProductSearchCriteria criteria){
         try {
-            Page<Product> productsPage = productRepository.findAll(pageable);
+            Specification<Product> spec = ProductSpecification.fromCriteria(criteria);
+            Page<Product> productsPage = productRepository.findAll(spec, pageable);
             Page<ProductDTO> dtoPage = productsPage.map(productMapper::toDTO);
             return Result.success(dtoPage);
         } catch (Exception e){

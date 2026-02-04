@@ -2,6 +2,7 @@ package com.aplication.rest.instruments.product;
 
 import com.aplication.rest.instruments.product.dto.ProductDTO;
 import com.aplication.rest.instruments.core.error_handling.Result;
+import com.aplication.rest.instruments.product.dto.ProductSearchCriteria;
 import jakarta.validation.Valid;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
@@ -24,8 +25,8 @@ public class ProductController {
     private IProductService productService;
 
     @GetMapping()
-    public ResponseEntity<Result<Page<ProductDTO>>> findAll(@PageableDefault(size = 10, page = 0, sort = "name") Pageable pageable) {
-        return ResponseEntity.ok(productService.findAll(pageable));
+    public ResponseEntity<Result<Page<ProductDTO>>> findAll(@PageableDefault(size = 10, page = 0, sort = "name") Pageable pageable, ProductSearchCriteria criteria) {
+        return ResponseEntity.ok(productService.findAll(pageable, criteria));
     }
 
     @GetMapping("/{id}")
@@ -34,7 +35,7 @@ public class ProductController {
     }
 
     @PostMapping()
-    public ResponseEntity<Result<ProductDTO>> save(@Valid @RequestBody ProductDTO productDTO) throws URISyntaxException{
+    public ResponseEntity<Result<ProductDTO>> save(@Valid @RequestBody ProductDTO productDTO) throws URISyntaxException {
         Result<ProductDTO> result = productService.save(productDTO);
         return ResponseEntity.created(new URI("/api/v1/products/" + result.data().getId()))
                 .body(result);

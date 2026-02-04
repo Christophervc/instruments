@@ -1,6 +1,8 @@
 package com.aplication.rest.instruments.core.exceptions;
 import com.aplication.rest.instruments.core.error_handling.ApiError;
 import com.aplication.rest.instruments.core.error_handling.Result;
+import org.hibernate.exception.DataException;
+import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.validation.FieldError;
@@ -47,6 +49,24 @@ public class GlobalExceptionHandler {
                 })
                 .toList();
         return ResponseEntity.badRequest().body(Result.isFailure(errors.toArray(new ApiError[0])));
+    }
+
+    @ExceptionHandler(DataIntegrityViolationException.class)
+    public ResponseEntity<Result<?>> handleDataIntegrityViolation(DataIntegrityViolationException exception) {
+        String message = exception.getMostSpecificCause().getMessage();
+        String userMessage = "DATA INTEGRITY ERROR";
+
+        if (message != null) {
+            if (message.contains("uk_product_sku")) {
+                userMessage = "SKU already exists";
+            } else if (message.contains("uk_product_slug")) {
+                userMessage = "There is already a product with that name (duplicate slug)";
+            } else if (message.contains("unique")) {
+                userMessage = "duplicate entry: one of the unique fields already exists";
+            }
+        }
+        ApiError error = new ApiError("DUPLICATE ENTRY", userMessage);
+        return ResponseEntity.status(HttpStatus.CONFLICT).body(Result.isFailure(error));
     }
 
 
