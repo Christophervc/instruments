@@ -1,6 +1,7 @@
 package com.aplication.rest.instruments.order;
 
 import com.aplication.rest.instruments.core.error_handling.Result;
+import com.aplication.rest.instruments.order.dto.OrderDTO;
 import com.aplication.rest.instruments.order.dto.OrderRequest;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
@@ -10,6 +11,9 @@ import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
+import java.net.URI;
+import java.net.URISyntaxException;
+
 @RestController
 @RequestMapping("/api/v1/orders")
 @RequiredArgsConstructor
@@ -17,7 +21,8 @@ public class OrderController {
     private final IOrderService orderService;
 
     @PostMapping
-    public ResponseEntity<Result<Order>> createOrder (@Valid @RequestBody OrderRequest request) {
-        return null;
+    public ResponseEntity<Result<OrderDTO>> createOrder (@Valid @RequestBody OrderRequest request) throws URISyntaxException {
+        Result<OrderDTO> result = orderService.createOrder(request);
+        return ResponseEntity.created(new URI("api/v1/orders" + result.data().getId())).body(result);
     }
 }

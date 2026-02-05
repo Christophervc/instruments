@@ -2,6 +2,7 @@ package com.aplication.rest.instruments.order;
 
 import com.aplication.rest.instruments.core.error_handling.Result;
 import com.aplication.rest.instruments.core.exceptions.NotFoundException;
+import com.aplication.rest.instruments.order.dto.OrderDTO;
 import com.aplication.rest.instruments.order.dto.OrderRequest;
 import com.aplication.rest.instruments.product.Product;
 import com.aplication.rest.instruments.product.ProductRepository;
@@ -19,10 +20,11 @@ public class OrderServiceImpl implements IOrderService {
 
     private final OrderRepository orderRepository;
     private final ProductRepository productRepository;
+    private final OrderMapper orderMapper;
 
-    @Transactional
     @Override
-    public Result<Order> createOrder(OrderRequest request) {
+    @Transactional
+    public Result<OrderDTO> createOrder(OrderRequest request) {
 
         Order order = new Order();
         List<OrderItem> orderItems = new ArrayList<>();
@@ -47,13 +49,14 @@ public class OrderServiceImpl implements IOrderService {
                     .build();
 
             orderItems.add(item);
-            //subtotal = precio * cantidad
+
             BigDecimal subtotal = product.getPrice().multiply(new BigDecimal(itemRequest.quantity()));
+
             total = total.add(subtotal);
         }
         order.setItems(orderItems);
         order.setTotal(total);
         Order savedOrder = orderRepository.save(order);
-        return Result.success(savedOrder);
+        return Result.success(orderMapper.toDTO(savedOrder));
     }
 }

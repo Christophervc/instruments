@@ -19,7 +19,7 @@ import java.util.UUID;
 @AllArgsConstructor
 @NoArgsConstructor
 @Entity
-@Table(name = "orders") // "order" es palabra reservada en SQL, usa plural
+@Table(name = "orders")
 @EntityListeners(AuditingEntityListener.class)
 
 public class Order {
@@ -35,8 +35,7 @@ public class Order {
     @Column(nullable = false)
     private BigDecimal total;
 
-    // Relación OneToMany: Una orden tiene muchos items
-    // CascadeType.ALL: Si guardo la Orden, se guardan los items automáticamente
+
     @OneToMany(mappedBy = "order", cascade = CascadeType.ALL, orphanRemoval = true)
     private List<OrderItem> items = new ArrayList<>();
 }
