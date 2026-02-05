@@ -5,14 +5,15 @@ import com.aplication.rest.instruments.order.dto.OrderDTO;
 import com.aplication.rest.instruments.order.dto.OrderRequest;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.web.PageableDefault;
 import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 
 import java.net.URI;
 import java.net.URISyntaxException;
+import java.util.UUID;
 
 @RestController
 @RequestMapping("/api/v1/orders")
@@ -20,9 +21,26 @@ import java.net.URISyntaxException;
 public class OrderController {
     private final IOrderService orderService;
 
+    @GetMapping()
+    public ResponseEntity<Result<Page<OrderDTO>>> findAll(@PageableDefault(size = 10, page = 0, sort = "date")Pageable pageable){
+        return ResponseEntity.ok(orderService.findAll(pageable));
+    }
+
+    @GetMapping("/{id}")
+    public ResponseEntity<Result<OrderDTO>> orderDetails(@PathVariable UUID id){
+        Result<OrderDTO> result = orderService.findById(id);
+        return ResponseEntity.ok(result);
+    }
+
     @PostMapping
     public ResponseEntity<Result<OrderDTO>> createOrder (@Valid @RequestBody OrderRequest request) throws URISyntaxException {
         Result<OrderDTO> result = orderService.createOrder(request);
         return ResponseEntity.created(new URI("api/v1/orders" + result.data().getId())).body(result);
     }
+
+    @PatchMapping("/{id}/cancel")
+    public ResponseEntity<Result<OrderDTO>> cancelOrder(@PathVariable UUID id){
+        return ResponseEntity.ok(orderService.cancelOrder(id));
+    }
+
 }

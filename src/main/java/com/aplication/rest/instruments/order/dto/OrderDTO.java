@@ -1,5 +1,6 @@
 package com.aplication.rest.instruments.order.dto;
 
+import com.aplication.rest.instruments.order.enums.OrderStatus;
 import lombok.Builder;
 import lombok.Data;
 
@@ -14,6 +15,7 @@ public class OrderDTO {
     private UUID id;
     private LocalDateTime date;
     private BigDecimal total;
+    private OrderStatus status;
     private List<OrderItemDTO> items;
 
 }

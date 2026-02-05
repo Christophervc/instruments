@@ -35,5 +35,5 @@ public class OrderItem {
     private Integer quantity;
 
     @Column(nullable = false)
-    private BigDecimal price; // PRECIO CONGELADO: El precio al momento de la compra
+    private BigDecimal price;
 }

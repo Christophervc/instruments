@@ -1,5 +1,6 @@
 package com.aplication.rest.instruments.order;
 
+import com.aplication.rest.instruments.order.enums.OrderStatus;
 import jakarta.persistence.*;
 import lombok.*;
 import org.hibernate.annotations.UuidGenerator;
@@ -27,6 +28,10 @@ public class Order {
     @GeneratedValue
     @UuidGenerator(style = UuidGenerator.Style.TIME)
     private UUID id;
+
+    @Enumerated(EnumType.STRING)
+    @Column(name = "status")
+    private OrderStatus status;
 
     @CreatedDate
     @Column(nullable = false, updatable = false)
