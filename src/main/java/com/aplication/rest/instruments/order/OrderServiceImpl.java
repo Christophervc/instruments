@@ -86,17 +86,34 @@ public class OrderServiceImpl implements IOrderService {
         return Result.success(orderMapper.toDTO(savedOrder));
     }
 
+
     @Override
     public Result<OrderDTO> findById(UUID id) {
         return orderRepository.findById(id).map(order -> Result.success(orderMapper.toDTO(order)))
-                .orElseThrow(() -> new NotFoundException("Order not found - id: " + id));
+                .orElseThrow(() -> new NotFoundException("Order not found with id: " + id));
     }
 
     @Override
     public Result<Page<OrderDTO>> findAll(Pageable pageable, OrderSearchCriteria criteria) {
         Specification<Order> spec = OrderSpecification.fromCriteria(criteria);
-        Page<Order> ordersPage = orderRepository.findAll(spec,pageable);
+        Page<Order> ordersPage = orderRepository.findAll(spec, pageable);
         Page<OrderDTO> dtoOrdersPage = ordersPage.map(orderMapper::toDTO);
         return Result.success(dtoOrdersPage);
+    }
+
+    @Override
+    public Result<OrderDTO> updateOrderStatus(UUID id, OrderStatus newStatus) {
+        if (newStatus == OrderStatus.CANCELLED) {
+            return this.cancelOrder(id);
+        }
+        Order order = orderRepository.findById(id).orElseThrow(() -> new NotFoundException("Order not found"));
+
+        if (order.getStatus() == OrderStatus.CANCELLED) {
+            throw new RuntimeException("Order status cannot be updated when it is cancelled");
+        }
+        order.setStatus(newStatus);
+        Order savedOrder = orderRepository.save(order);
+
+        return Result.success(orderMapper.toDTO(savedOrder));
     }
 }

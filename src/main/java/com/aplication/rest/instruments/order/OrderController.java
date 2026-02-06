@@ -4,10 +4,12 @@ import com.aplication.rest.instruments.core.error_handling.Result;
 import com.aplication.rest.instruments.order.dto.OrderDTO;
 import com.aplication.rest.instruments.order.dto.OrderRequest;
 import com.aplication.rest.instruments.order.dto.OrderSearchCriteria;
+import com.aplication.rest.instruments.order.dto.UpdateOrderStatusRequest;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.Sort;
 import org.springframework.data.web.PageableDefault;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
@@ -23,7 +25,7 @@ public class OrderController {
     private final IOrderService orderService;
 
     @GetMapping()
-    public ResponseEntity<Result<Page<OrderDTO>>> findAll(@PageableDefault(size = 10, page = 0, sort = "date") Pageable pageable, OrderSearchCriteria criteria) {
+    public ResponseEntity<Result<Page<OrderDTO>>> findAll(@PageableDefault(size = 10, page = 0, sort = "date", direction = Sort.Direction.DESC) Pageable pageable, OrderSearchCriteria criteria) {
         return ResponseEntity.ok(orderService.findAll(pageable, criteria));
     }
 
@@ -42,6 +44,11 @@ public class OrderController {
     @PatchMapping("/{id}/cancel")
     public ResponseEntity<Result<OrderDTO>> cancelOrder(@PathVariable UUID id) {
         return ResponseEntity.ok(orderService.cancelOrder(id));
+    }
+
+    @PatchMapping("/{id}/status")
+    public ResponseEntity<Result<OrderDTO>> updateOrderStatus(@PathVariable UUID id, @Valid @RequestBody UpdateOrderStatusRequest request) {
+        return ResponseEntity.ok(orderService.updateOrderStatus(id, request.status()));
     }
 
 }
