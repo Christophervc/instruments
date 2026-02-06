@@ -3,6 +3,7 @@ package com.aplication.rest.instruments.order;
 import com.aplication.rest.instruments.core.error_handling.Result;
 import com.aplication.rest.instruments.order.dto.OrderDTO;
 import com.aplication.rest.instruments.order.dto.OrderRequest;
+import com.aplication.rest.instruments.order.dto.OrderSearchCriteria;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
@@ -22,24 +23,24 @@ public class OrderController {
     private final IOrderService orderService;
 
     @GetMapping()
-    public ResponseEntity<Result<Page<OrderDTO>>> findAll(@PageableDefault(size = 10, page = 0, sort = "date")Pageable pageable){
-        return ResponseEntity.ok(orderService.findAll(pageable));
+    public ResponseEntity<Result<Page<OrderDTO>>> findAll(@PageableDefault(size = 10, page = 0, sort = "date") Pageable pageable, OrderSearchCriteria criteria) {
+        return ResponseEntity.ok(orderService.findAll(pageable, criteria));
     }
 
     @GetMapping("/{id}")
-    public ResponseEntity<Result<OrderDTO>> orderDetails(@PathVariable UUID id){
+    public ResponseEntity<Result<OrderDTO>> orderDetails(@PathVariable UUID id) {
         Result<OrderDTO> result = orderService.findById(id);
         return ResponseEntity.ok(result);
     }
 
     @PostMapping
-    public ResponseEntity<Result<OrderDTO>> createOrder (@Valid @RequestBody OrderRequest request) throws URISyntaxException {
+    public ResponseEntity<Result<OrderDTO>> createOrder(@Valid @RequestBody OrderRequest request) throws URISyntaxException {
         Result<OrderDTO> result = orderService.createOrder(request);
         return ResponseEntity.created(new URI("api/v1/orders" + result.data().getId())).body(result);
     }
 
     @PatchMapping("/{id}/cancel")
-    public ResponseEntity<Result<OrderDTO>> cancelOrder(@PathVariable UUID id){
+    public ResponseEntity<Result<OrderDTO>> cancelOrder(@PathVariable UUID id) {
         return ResponseEntity.ok(orderService.cancelOrder(id));
     }
 

@@ -4,12 +4,15 @@ import com.aplication.rest.instruments.core.error_handling.Result;
 import com.aplication.rest.instruments.core.exceptions.NotFoundException;
 import com.aplication.rest.instruments.order.dto.OrderDTO;
 import com.aplication.rest.instruments.order.dto.OrderRequest;
+import com.aplication.rest.instruments.order.dto.OrderSearchCriteria;
 import com.aplication.rest.instruments.order.enums.OrderStatus;
+import com.aplication.rest.instruments.order.utils.OrderSpecification;
 import com.aplication.rest.instruments.product.Product;
 import com.aplication.rest.instruments.product.ProductRepository;
 import jakarta.transaction.Transactional;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
+import org.springframework.data.jpa.domain.Specification;
 import org.springframework.stereotype.Service;
 import lombok.RequiredArgsConstructor;
 
@@ -90,9 +93,10 @@ public class OrderServiceImpl implements IOrderService {
     }
 
     @Override
-    public Result<Page<OrderDTO>> findAll(Pageable pageable) {
-        Page<Order> ordersPage = orderRepository.findAll(pageable);
-        Page<OrderDTO> dtoPage = ordersPage.map(orderMapper::toDTO);
-        return Result.success(dtoPage);
+    public Result<Page<OrderDTO>> findAll(Pageable pageable, OrderSearchCriteria criteria) {
+        Specification<Order> spec = OrderSpecification.fromCriteria(criteria);
+        Page<Order> ordersPage = orderRepository.findAll(spec,pageable);
+        Page<OrderDTO> dtoOrdersPage = ordersPage.map(orderMapper::toDTO);
+        return Result.success(dtoOrdersPage);
     }
 }
