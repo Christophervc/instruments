@@ -1,5 +1,6 @@
 package com.aplication.rest.instruments.product;
 
+import com.aplication.rest.instruments.core.audit.AuditableEntity;
 import com.aplication.rest.instruments.manufacturer.Manufacturer;
 import com.aplication.rest.instruments.product.enums.InstrumentType;
 import com.fasterxml.jackson.annotation.JsonIgnore;
@@ -18,7 +19,7 @@ import java.util.UUID;
 @Entity
 @Table(name = "products")
 
-public class Product {
+public class Product extends AuditableEntity {
     @Id
     @GeneratedValue
     @UuidGenerator(style = UuidGenerator.Style.TIME)
@@ -42,7 +43,7 @@ public class Product {
     @Column(name = "is_active")
     @Builder.Default
     private Boolean active = true;
-    @Column(name = "imageUrl")
+    @Column(name = "image_url")
     private String image_url;
     @ManyToOne
     @JoinColumn(name = "manufacturer_id", nullable = false)

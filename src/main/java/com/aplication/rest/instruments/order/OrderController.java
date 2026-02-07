@@ -5,6 +5,7 @@ import com.aplication.rest.instruments.order.dto.OrderDTO;
 import com.aplication.rest.instruments.order.dto.OrderRequest;
 import com.aplication.rest.instruments.order.dto.OrderSearchCriteria;
 import com.aplication.rest.instruments.order.dto.UpdateOrderStatusRequest;
+import io.swagger.v3.oas.annotations.Operation;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
@@ -13,6 +14,7 @@ import org.springframework.data.domain.Sort;
 import org.springframework.data.web.PageableDefault;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
+import org.springdoc.core.annotations.ParameterObject;
 
 import java.net.URI;
 import java.net.URISyntaxException;
@@ -25,7 +27,10 @@ public class OrderController {
     private final IOrderService orderService;
 
     @GetMapping()
-    public ResponseEntity<Result<Page<OrderDTO>>> findAll(@PageableDefault(size = 10, page = 0, sort = "date", direction = Sort.Direction.DESC) Pageable pageable, OrderSearchCriteria criteria) {
+    @Operation(summary = "Get all orders history", description = "filter between dates and order state")
+    public ResponseEntity<Result<Page<OrderDTO>>> findAll(
+            @ParameterObject @PageableDefault(size = 10, page = 0, sort = "createdAt", direction = Sort.Direction.DESC) Pageable pageable,
+            @ParameterObject OrderSearchCriteria criteria) {
         return ResponseEntity.ok(orderService.findAll(pageable, criteria));
     }
 

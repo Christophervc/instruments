@@ -24,4 +24,5 @@ public class ManufacturerDTO {
     private String name;
 
     private List<Product> productList = new ArrayList<>();
+
 }

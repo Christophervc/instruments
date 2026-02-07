@@ -13,9 +13,8 @@ import java.util.UUID;
 @Builder
 public class OrderDTO {
     private UUID id;
-    private LocalDateTime date;
+    private LocalDateTime createdAt;
     private BigDecimal total;
     private OrderStatus status;
     private List<OrderItemDTO> items;
-
 }

@@ -22,10 +22,10 @@ public class OpenApi {
                 .url("https://choosealicense.com/licenses/mit/");
 
         Info info = new Info()
-                .title("instruments API")
+                .title("instruments e-commerce API")
                 .version("1.0.0")
 
-                .description("API para gestionar instrumentos musicales")
+                .description("Manage all products, brands, orders")
                 .license(mitLicense);
 
         return new OpenAPI()

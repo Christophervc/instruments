@@ -1,5 +1,6 @@
 package com.aplication.rest.instruments.manufacturer;
 
+import com.aplication.rest.instruments.core.audit.AuditableEntity;
 import com.aplication.rest.instruments.product.Product;
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import jakarta.persistence.*;
@@ -18,7 +19,7 @@ import java.util.UUID;
 @Entity
 @Table(name = "manufacturers")
 
-public class Manufacturer {
+public class Manufacturer extends AuditableEntity {
     @Id
     @GeneratedValue
     @UuidGenerator(style = UuidGenerator.Style.TIME)

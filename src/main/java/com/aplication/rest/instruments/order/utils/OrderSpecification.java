@@ -18,11 +18,11 @@ public class OrderSpecification {
             }
 
             if(criteria.startDate() != null) {
-                predicates.add(cb.greaterThanOrEqualTo(root.get("date"), criteria.startDate()));
+                predicates.add(cb.greaterThanOrEqualTo(root.get("createdAt"), criteria.startDate()));
             }
 
             if(criteria.endDate() != null) {
-                predicates.add(cb.lessThanOrEqualTo(root.get("date"), criteria.endDate()));
+                predicates.add(cb.lessThanOrEqualTo(root.get("createdAt"), criteria.endDate()));
             }
 
             return cb.and(predicates.toArray(new Predicate[0]));

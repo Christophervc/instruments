@@ -9,6 +9,7 @@ import java.math.BigDecimal;
 
 @Mapper(componentModel = "spring")
 public interface OrderMapper {
+
     @Mapping(target = "items", source = "items")
     OrderDTO toDTO(Order order);
     @Mapping(target = "productId", source = "product.id")

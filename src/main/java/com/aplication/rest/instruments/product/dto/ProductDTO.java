@@ -45,7 +45,7 @@ public class ProductDTO {
 
     private Boolean active;
 
-    private String imageUrl;
+    private String image_url;
 
     @NotNull(message = "El fabricante es obligatorio")
     private Manufacturer manufacturer;

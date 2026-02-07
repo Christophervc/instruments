@@ -13,7 +13,11 @@ public interface ManufacturerMapper {
 
     List<ManufacturerDTO> toDTOList(List<Manufacturer> manufacturers);
 
+    @Mapping(target = "createdAt", ignore = true)
+    @Mapping(target = "updatedAt", ignore = true)
+    @Mapping(target = "createdBy", ignore = true)
+    @Mapping(target = "updatedBy", ignore = true)
+
     @BeanMapping(nullValuePropertyMappingStrategy = NullValuePropertyMappingStrategy.IGNORE)
     void updateManufacturerFromDto(ManufacturerDTO dto, @MappingTarget Manufacturer manufacturer);
-
 }

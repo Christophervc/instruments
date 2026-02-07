@@ -3,7 +3,9 @@ package com.aplication.rest.instruments.product;
 import com.aplication.rest.instruments.product.dto.ProductDTO;
 import com.aplication.rest.instruments.core.error_handling.Result;
 import com.aplication.rest.instruments.product.dto.ProductSearchCriteria;
+import io.swagger.v3.oas.annotations.Operation;
 import jakarta.validation.Valid;
+import org.springdoc.core.annotations.ParameterObject;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
@@ -25,7 +27,10 @@ public class ProductController {
     private IProductService productService;
 
     @GetMapping()
-    public ResponseEntity<Result<Page<ProductDTO>>> findAll(@PageableDefault(size = 10, page = 0, sort = "name") Pageable pageable, ProductSearchCriteria criteria) {
+    @Operation(summary = "Get all products", description = "filter by name, price, manufacturer and type ")
+    public ResponseEntity<Result<Page<ProductDTO>>> findAll(
+            @ParameterObject  @PageableDefault(size = 10, page = 0, sort = "name") Pageable pageable,
+            @ParameterObject ProductSearchCriteria criteria) {
         return ResponseEntity.ok(productService.findAll(pageable, criteria));
     }
 
