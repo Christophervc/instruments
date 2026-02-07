@@ -6,6 +6,7 @@ import com.aplication.rest.instruments.product.enums.InstrumentType;
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import jakarta.persistence.*;
 import lombok.*;
+import org.hibernate.annotations.SQLRestriction;
 import org.hibernate.annotations.UuidGenerator;
 
 import java.math.BigDecimal;
@@ -18,7 +19,7 @@ import java.util.UUID;
 @NoArgsConstructor
 @Entity
 @Table(name = "products")
-
+@SQLRestriction("is_active = true")
 public class Product extends AuditableEntity {
     @Id
     @GeneratedValue

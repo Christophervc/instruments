@@ -7,6 +7,7 @@ import com.aplication.rest.instruments.core.exceptions.NotFoundException;
 import com.aplication.rest.instruments.product.dto.ProductSearchCriteria;
 import com.aplication.rest.instruments.product.utils.ProductHelper;
 import com.aplication.rest.instruments.product.utils.ProductSpecification;
+import jakarta.transaction.Transactional;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
@@ -77,10 +78,12 @@ public class ProductServiceImplement implements IProductService {
     }
 
     @Override
+    @Transactional
     public Result<ProductDTO> deleteById(UUID id) {
         Product product = productRepository.findById(id).orElseThrow(() -> new NotFoundException("Product not found with id: "+id));
-        ProductDTO productDTO = productMapper.toDTO(product);
-        productRepository.deleteById(id);
+        product.setActive(false);
+        Product deletedProduct = productRepository.save(product);
+        ProductDTO productDTO = productMapper.toDTO(deletedProduct);
         return Result.success(productDTO);
     }
 }

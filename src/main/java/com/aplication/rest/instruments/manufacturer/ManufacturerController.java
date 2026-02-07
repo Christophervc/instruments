@@ -40,9 +40,4 @@ public class ManufacturerController {
     public ResponseEntity<Result<ManufacturerDTO>> update(@PathVariable UUID id, @Valid @RequestBody ManufacturerDTO manufacturerDTO) {
         return ResponseEntity.ok(manufacturerService.update(id, manufacturerDTO));
     }
-
-    @DeleteMapping("/{id}")
-    public ResponseEntity<Result<ManufacturerDTO>> deleteById(@PathVariable UUID id){
-        return ResponseEntity.ok(manufacturerService.deleteById(id));
-    }
 }
