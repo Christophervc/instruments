@@ -22,32 +22,33 @@ public class ProductDTO {
 
     private UUID id;
 
-    @NotBlank(message = "El nombre no debe estar vacio")
+    @NotBlank(message = "{product.name.required}")
     private String name;
 
-    @NotNull(message = "El tipo de instrumento es obligatorio")
+    @NotNull(message = "{product.type.required}")
     private InstrumentType type;
 
-    @Size (min = 10, message = "La descripcion debe tener al menos 8 caracteres")
+    @Size (min = 10, message = "{product.description.size}")
     private String description;
 
-    @NotNull(message = "El precio es obligatorio")
-    @DecimalMin(value ="100.0", message = "El precio debe ser mayor a 100")
+    @NotNull(message = "{product.price.required}")
+    @DecimalMin(value ="100.0", message = "{product.price.min}")
     private BigDecimal price;
 
     private String slug;
 
+    @Size(min = 3, message = "{product.sku.min}")
     private String sku;
 
-    @NotNull(message = "El stock es obligatorio")
-    @Min(value = 0, message = "El stock no puede ser negativo")
+    @NotNull(message = "{product.stock.required}")
+    @Min(value = 1, message = "{product.stock.min}")
     private Integer stock;
 
     private Boolean active;
 
     private String image_url;
 
-    @NotNull(message = "El fabricante es obligatorio")
+    @NotNull(message = "{product.manufacturer.required}")
     private Manufacturer manufacturer;
 
 }

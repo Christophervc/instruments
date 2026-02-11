@@ -5,4 +5,6 @@ import jakarta.validation.constraints.NotNull;
 
 import java.util.UUID;
 
-public record OrderItemRequest(@NotNull UUID productId, @NotNull @Min(1) Integer quantity){}
+public record OrderItemRequest(@NotNull UUID productId,
+                               @NotNull(message = "{order.quantity.min}")
+                               @Min(1) Integer quantity){}
