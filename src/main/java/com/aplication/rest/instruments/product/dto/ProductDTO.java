@@ -3,6 +3,7 @@ package com.aplication.rest.instruments.product.dto;
 
 import com.aplication.rest.instruments.manufacturer.Manufacturer;
 
+import com.aplication.rest.instruments.manufacturer.dto.ManufacturerDTO;
 import com.aplication.rest.instruments.product.enums.InstrumentType;
 import jakarta.validation.constraints.*;
 import lombok.AllArgsConstructor;
@@ -49,6 +50,6 @@ public class ProductDTO {
     private String image_url;
 
     @NotNull(message = "{product.manufacturer.required}")
-    private Manufacturer manufacturer;
+    private ManufacturerDTO manufacturer;
 
 }

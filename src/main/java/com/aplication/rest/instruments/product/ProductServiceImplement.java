@@ -28,39 +28,33 @@ public class ProductServiceImplement implements IProductService {
     private ProductHelper productHelper;
 
     @Override
-    public Result<Page<ProductDTO>> findAll(Pageable pageable, ProductSearchCriteria criteria){
+    public Result<Page<ProductDTO>> findAll(Pageable pageable, ProductSearchCriteria criteria) {
         try {
             Specification<Product> spec = ProductSpecification.fromCriteria(criteria);
             Page<Product> productsPage = productRepository.findAll(spec, pageable);
             Page<ProductDTO> dtoPage = productsPage.map(productMapper::toDTO);
             return Result.success(dtoPage);
-        } catch (Exception e){
+        } catch (Exception e) {
             return Result.isFailure(new ApiError("DATABASE_ERROR", "ERROR RETRIEVING PRODUCTS"));
         }
     }
 
     @Override
     public Result<Optional<ProductDTO>> findById(UUID id) {
-        Optional<Product> productOptional = productRepository.findById(id);
-        if (productOptional.isPresent()){
-            Product product = productOptional.get();
-            ProductDTO productDTO = productMapper.toDTO(product);
-            return Result.success(Optional.of(productDTO));
-        }
-        else {
-            return Result.isFailure(new ApiError("NOT_FOUND", "PRODUCT NOT FOUND"));
-        }
+        Product product = productRepository.findById(id).orElseThrow(() -> new NotFoundException("Product not found with id: " + id));
+        ProductDTO productDTO = productMapper.toDTO(product);
+        return Result.success(Optional.of(productDTO));
     }
 
     @Override
     public Result<ProductDTO> save(ProductDTO productDTO) {
         Product product = productMapper.toEntity(productDTO);
 
-        if(product.getSku() == null || product.getSku().isBlank()){
+        if (product.getSku() == null || product.getSku().isBlank()) {
             product.setSku(productHelper.generateSku(product));
         }
         product.setSlug(productHelper.generateSlug(product.getName()));
-        if (product.getStock() == null){
+        if (product.getStock() == null) {
             product.setStock(0);
         }
 
@@ -80,7 +74,7 @@ public class ProductServiceImplement implements IProductService {
     @Override
     @Transactional
     public Result<ProductDTO> deleteById(UUID id) {
-        Product product = productRepository.findById(id).orElseThrow(() -> new NotFoundException("Product not found with id: "+id));
+        Product product = productRepository.findById(id).orElseThrow(() -> new NotFoundException("Product not found with id: " + id));
         product.setActive(false);
         Product deletedProduct = productRepository.save(product);
         ProductDTO productDTO = productMapper.toDTO(deletedProduct);
