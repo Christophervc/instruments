@@ -13,6 +13,8 @@ public interface IManufacturerService {
 
     Result<Optional<ManufacturerDTO>> findById(UUID id);
 
+    Result<List<ManufacturerDTO>> findByName(String name);
+
     Result<ManufacturerDTO> save(ManufacturerDTO manufacturerDTO);
 
     Result<ManufacturerDTO> update(UUID id, ManufacturerDTO manufacturerDTO);

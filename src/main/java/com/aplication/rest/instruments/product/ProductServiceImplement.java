@@ -72,6 +72,14 @@ public class ProductServiceImplement implements IProductService {
     }
 
     @Override
+    public Result<ProductDTO> findBySku(String sku) {
+        Product existingProduct = productRepository.findBySku(sku)
+                .orElseThrow(()-> new NotFoundException("Product not found with sku:" + sku));
+        ProductDTO productDTO = productMapper.toDTO(existingProduct);
+        return Result.success(productDTO);
+    }
+
+    @Override
     @Transactional
     public Result<ProductDTO> deleteById(UUID id) {
         Product product = productRepository.findById(id).orElseThrow(() -> new NotFoundException("Product not found with id: " + id));

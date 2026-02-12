@@ -21,9 +21,8 @@ public class ManufacturerServiceImplement implements IManufacturerService {
     @Override
     public Result<List<ManufacturerDTO>> findAll() {
         try {
-            List<Manufacturer> manufacturers = (List<Manufacturer>) manufacturerRepository.findAll();
-
-            if (((List<Manufacturer>) manufacturerRepository.findAll()).isEmpty()) return Result.success(List.of());
+            List<Manufacturer> manufacturers = manufacturerRepository.findAll();
+            if (((manufacturerRepository.findAll()).isEmpty())) return Result.success(List.of());
             List<ManufacturerDTO> manufaturerDTO = manufacturers.stream().map(manufacturer -> manufacturerMapper.toDTO(manufacturer)).toList();
             return Result.success(manufaturerDTO);
         } catch (Exception e) {
@@ -42,6 +41,13 @@ public class ManufacturerServiceImplement implements IManufacturerService {
         } catch (Exception e) {
             return Result.isFailure(new ApiError("DATABASE ERROR", "Error retrieving a manufacturer"));
         }
+    }
+
+    @Override
+    public Result<List<ManufacturerDTO>> findByName(String name) {
+        List<Manufacturer> existingManufacturers = manufacturerRepository.findByNameContainingIgnoreCase(name);
+        List<ManufacturerDTO> manufacturerDTOS = existingManufacturers.stream().map(manufacturer -> manufacturerMapper.toDTO(manufacturer)).toList();
+        return Result.success(manufacturerDTOS);
     }
 
     @Override

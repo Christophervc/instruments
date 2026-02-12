@@ -20,4 +20,6 @@ public interface IProductService {
     Result<ProductDTO> deleteById(UUID id);
 
     Result<ProductDTO> update(UUID id, ProductDTO productDTO);
+
+    Result<ProductDTO> findBySku(String sku);
 }

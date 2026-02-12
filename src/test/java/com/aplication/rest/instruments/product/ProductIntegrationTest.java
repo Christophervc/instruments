@@ -53,7 +53,7 @@ public class ProductIntegrationTest {
                 .price(BigDecimal.valueOf(3000.00))
                 .type(InstrumentType.ELECTRIC_GUITAR)
                 .sku("GIB-LP-001")
-                .description("The Gibson Les Paul is the world's most desirable electric solidbody guitar")
+                .description("The Gibson Les Paul is the world's most desirable electric solid body guitar")
                 .active(true)
                 .stock(5)
                 .manufacturer(manufacturerDTO)

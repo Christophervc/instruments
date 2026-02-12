@@ -39,6 +39,11 @@ public class ProductController {
         return ResponseEntity.ok(productService.findById(id));
     }
 
+    @GetMapping("sku/{sku}")
+    public ResponseEntity<Result<ProductDTO>> findBySku(@PathVariable String sku) {
+        return ResponseEntity.ok(productService.findBySku(sku));
+    }
+
     @PostMapping()
     public ResponseEntity<Result<ProductDTO>> save(@Valid @RequestBody ProductDTO productDTO) throws URISyntaxException {
         Result<ProductDTO> result = productService.save(productDTO);
