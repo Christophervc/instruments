@@ -6,14 +6,26 @@ import org.springframework.context.annotation.Configuration;
 import org.springframework.context.support.ReloadableResourceBundleMessageSource;
 import org.springframework.validation.beanvalidation.LocalValidatorFactoryBean;
 import org.springframework.web.servlet.LocaleResolver;
+import org.springframework.web.servlet.config.annotation.InterceptorRegistry;
 import org.springframework.web.servlet.config.annotation.WebMvcConfigurer;
 import org.springframework.web.servlet.i18n.AcceptHeaderLocaleResolver;
+import com.aplication.rest.instruments.config.rate_limit.RateLimitInterceptor;
+import org.springframework.beans.factory.annotation.Autowired;
 
 import java.nio.charset.StandardCharsets;
 import java.util.Locale;
 
 @Configuration
 public class WebConfig implements WebMvcConfigurer {
+    @Autowired
+    private RateLimitInterceptor rateLimitInterceptor;
+    //Rate Limit Interceptor registration
+    @Override
+    public void addInterceptors(InterceptorRegistry registry) {
+        registry.addInterceptor(rateLimitInterceptor)
+                .addPathPatterns("/api/**");
+    }
+
     @Bean
     public MessageSource messageSource() {
         ReloadableResourceBundleMessageSource messageSource = new ReloadableResourceBundleMessageSource();
@@ -35,4 +47,7 @@ public class WebConfig implements WebMvcConfigurer {
         localeResolver.setDefaultLocale(Locale.ENGLISH); // Probar para forzar inglés
         return localeResolver;
     }
+
+
+
 }
