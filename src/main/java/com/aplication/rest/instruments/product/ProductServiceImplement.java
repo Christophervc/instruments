@@ -5,17 +5,21 @@ import com.aplication.rest.instruments.core.error_handling.Result;
 import com.aplication.rest.instruments.product.dto.ProductDTO;
 import com.aplication.rest.instruments.core.exceptions.NotFoundException;
 import com.aplication.rest.instruments.product.dto.ProductSearchCriteria;
+import com.aplication.rest.instruments.product.utils.ProductExcelExporter;
 import com.aplication.rest.instruments.product.utils.ProductHelper;
 import com.aplication.rest.instruments.product.utils.ProductSpecification;
-import jakarta.transaction.Transactional;
+import jakarta.servlet.http.HttpServletResponse;
+import org.springframework.transaction.annotation.Transactional;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.domain.Specification;
 import org.springframework.stereotype.Service;
 
+import java.io.IOException;
 import java.util.Optional;
 import java.util.UUID;
+import java.util.stream.Stream;
 
 
 @Service
@@ -80,6 +84,24 @@ public class ProductServiceImplement implements IProductService {
     }
 
     @Override
+    @Transactional(readOnly = true)
+    public void exportProductsToExcel(HttpServletResponse response) {
+        // Config response header
+        response.setContentType("application/octet-stream");
+        String headerKey = "Content-Disposition";
+        String headerValue = "attachment; filename=products_" + System.currentTimeMillis() + ".xlsx";
+        response.setHeader(headerKey, headerValue);
+
+        try (Stream<Product> products = productRepository.streamAll()) {
+            ProductExcelExporter exporter = new ProductExcelExporter(products);
+            exporter.export(response);
+        } catch (IOException e) {
+            throw new RuntimeException("Error exporting Excel", e);
+        }
+
+    }
+
+    @Override
     @Transactional
     public Result<ProductDTO> deleteById(UUID id) {
         Product product = productRepository.findById(id).orElseThrow(() -> new NotFoundException("Product not found with id: " + id));
@@ -88,4 +110,5 @@ public class ProductServiceImplement implements IProductService {
         ProductDTO productDTO = productMapper.toDTO(deletedProduct);
         return Result.success(productDTO);
     }
+
 }

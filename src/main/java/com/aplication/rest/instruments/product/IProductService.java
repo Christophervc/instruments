@@ -3,6 +3,7 @@ package com.aplication.rest.instruments.product;
 import com.aplication.rest.instruments.product.dto.ProductDTO;
 import com.aplication.rest.instruments.core.error_handling.Result;
 import com.aplication.rest.instruments.product.dto.ProductSearchCriteria;
+import jakarta.servlet.http.HttpServletResponse;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 
@@ -22,4 +23,6 @@ public interface IProductService {
     Result<ProductDTO> update(UUID id, ProductDTO productDTO);
 
     Result<ProductDTO> findBySku(String sku);
+
+    void exportProductsToExcel(HttpServletResponse response);
 }

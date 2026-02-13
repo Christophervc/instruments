@@ -4,6 +4,7 @@ import com.aplication.rest.instruments.product.dto.ProductDTO;
 import com.aplication.rest.instruments.core.error_handling.Result;
 import com.aplication.rest.instruments.product.dto.ProductSearchCriteria;
 import io.swagger.v3.oas.annotations.Operation;
+import jakarta.servlet.http.HttpServletResponse;
 import jakarta.validation.Valid;
 import org.springdoc.core.annotations.ParameterObject;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -44,6 +45,11 @@ public class ProductController {
         return ResponseEntity.ok(productService.findBySku(sku));
     }
 
+    @GetMapping("/export/excel")
+    public void exportToExcel(HttpServletResponse response) {
+        productService.exportProductsToExcel(response);
+    }
+
     @PostMapping()
     public ResponseEntity<Result<ProductDTO>> save(@Valid @RequestBody ProductDTO productDTO) throws URISyntaxException {
         Result<ProductDTO> result = productService.save(productDTO);
@@ -51,13 +57,15 @@ public class ProductController {
                 .body(result);
     }
 
+    @PutMapping("/{id}")
+    public ResponseEntity<Result<ProductDTO>> update(@PathVariable UUID id, @Valid @RequestBody ProductDTO productDTO) {
+        return ResponseEntity.ok(productService.update(id, productDTO));
+    }
+
     @DeleteMapping("/{id}")
     public ResponseEntity<Result<ProductDTO>> deleteById(@PathVariable UUID id) {
         return ResponseEntity.ok(productService.deleteById(id));
     }
 
-    @PutMapping("/{id}")
-    public ResponseEntity<Result<ProductDTO>> update(@PathVariable UUID id, @Valid @RequestBody ProductDTO productDTO) {
-        return ResponseEntity.ok(productService.update(id, productDTO));
-    }
+
 }
