@@ -2,48 +2,66 @@ package com.aplication.rest.instruments.config.rate_limit;
 
 import io.github.bucket4j.Bandwidth;
 import io.github.bucket4j.Bucket;
+import io.github.bucket4j.BucketConfiguration;
+import io.github.bucket4j.distributed.ExpirationAfterWriteStrategy;
+import io.github.bucket4j.distributed.proxy.ClientSideConfig;
+import io.github.bucket4j.redis.lettuce.cas.LettuceBasedProxyManager;
+import io.lettuce.core.RedisClient;
+import io.lettuce.core.api.StatefulRedisConnection;
+import io.lettuce.core.codec.ByteArrayCodec;
+import io.lettuce.core.codec.RedisCodec;
+import io.lettuce.core.codec.StringCodec;
 import org.springframework.stereotype.Service;
 
 import java.time.Duration;
-import java.util.Map;
-import java.util.concurrent.ConcurrentHashMap;
+import java.util.function.Supplier;
 
 @Service
 public class RateLimitingService {
-    //store buckets for each ip in memory (IP, Bucket)
-    private final Map<String, Bucket> generalBuckets = new ConcurrentHashMap<>();
-    private final Map<String, Bucket> heavyBuckets = new ConcurrentHashMap<>();
 
-    //General plan: 20 requests per minute for normal navigation
+    private final LettuceBasedProxyManager<String> proxyManager;
+
+    // Inject dependencies - redis connection
+    public RateLimitingService() {
+        // 1. create redis client
+        RedisClient redisClient = RedisClient.create("redis://localhost:6379");
+        // 2. define connection, codecs explicitly
+        // Key: String (user IP)
+        // Value: byte[] (Bucket4j serialized data)
+        StatefulRedisConnection<String, byte[]> redisConnection = redisClient.connect(RedisCodec.of(StringCodec.UTF8, ByteArrayCodec.INSTANCE));
+        ClientSideConfig clientSideConfig = ClientSideConfig.getDefault();
+        // 3. create proxy manager pass connection and config
+        this.proxyManager = LettuceBasedProxyManager.builderFor(redisConnection)
+                .withClientSideConfig(clientSideConfig
+                        .withExpirationAfterWriteStrategy(ExpirationAfterWriteStrategy
+                                .basedOnTimeForRefillingBucketUpToMax(Duration.ofMinutes(10))))
+                        .build(); //buckets expires after 10 minutes of inactivity
+    }
+
     public Bucket resolveBucket(String ip) {
-        return generalBuckets.computeIfAbsent(ip, this::createNewGeneralBucket);
+        Supplier<BucketConfiguration> configSupplier = this::getGeneralConfiguration;
+        return proxyManager.builder().build("rate_limit:general:" + ip, configSupplier);
     }
-    //Heavy plan: 3 requests per minute for heavy operations (export, orders)
+
     public Bucket resolveHeavyBucket(String ip) {
-        return heavyBuckets.computeIfAbsent(ip, this::createNewHeavyBucket);
+        Supplier<BucketConfiguration> configSupplier = this::getHeavyConfiguration;
+        return proxyManager.builder().build("rate_limit:heavy:" + ip, configSupplier);
     }
 
-    private Bucket createNewGeneralBucket(String ip) {
-        //General 20 requests per minute
-        Bandwidth limit = Bandwidth.builder()
-                .capacity(20)
-                .refillGreedy(20, Duration.ofMinutes(1))
-                .build();
 
-        return Bucket.builder()
-                .addLimit(limit)
+    private BucketConfiguration getGeneralConfiguration() {
+        return BucketConfiguration.builder()
+                .addLimit(Bandwidth.builder()
+                        .capacity(20)
+                        .refillIntervally(20, Duration.ofMinutes(1)).build())
                 .build();
     }
 
-    private Bucket createNewHeavyBucket(String ip) {
-        //Heavy 3 requests per minute
-        Bandwidth limit = Bandwidth.builder()
-                .capacity(3)
-                .refillGreedy(3, Duration.ofMinutes(1))
-                .build();
-
-        return Bucket.builder()
-                .addLimit(limit)
+    private BucketConfiguration getHeavyConfiguration() {
+        return BucketConfiguration.builder()
+                .addLimit(Bandwidth.builder()
+                        .capacity(3)
+                        .refillIntervally(3, Duration.ofMinutes(1)).build())
                 .build();
     }
 }

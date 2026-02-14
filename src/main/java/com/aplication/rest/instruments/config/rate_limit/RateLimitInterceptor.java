@@ -22,13 +22,11 @@ public class RateLimitInterceptor implements HandlerInterceptor {
 
         //Bucket Decision based on the URL
         Bucket tokenBucket;
+        // Normal Endpoints
         if (uri.contains("/export/excel") || (uri.contains("/orders") && request.getMethod().equals("POST"))) {
             // Heavy Endpoints
             tokenBucket = rateLimitingService.resolveHeavyBucket(ip);
-        } else {
-            // Normal Endpoints
-            tokenBucket = rateLimitingService.resolveBucket(ip);
-        }
+        } else tokenBucket = rateLimitingService.resolveBucket(ip);
         /* 2 consume 1 token */
         ConsumptionProbe probe = tokenBucket.tryConsumeAndReturnRemaining(1);
 
