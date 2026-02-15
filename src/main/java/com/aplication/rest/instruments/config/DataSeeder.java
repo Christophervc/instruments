@@ -39,11 +39,13 @@ public class DataSeeder implements CommandLineRunner {
             for (int i = 1; i <= 100; i++) {
                 Product p = Product.builder()
                         .name("Guitar model " + i)
-                        .price(new BigDecimal(100 + (i * 20)))
+                        .price(new BigDecimal(100 + (i * 40)))
                         .type(InstrumentType.ELECTRIC_GUITAR)
                         .manufacturer(i % 2 == 0 ? fender : gibson)
                         .active(true)
+                        .stock(3)
                         .description("Guitar description " + i)
+                        .image_url("https://placehold.co/600x400")
                         .build();
                 p.setSku(productHelper.generateSku(p));
                 p.setSlug(productHelper.generateSlug(p.getName()));

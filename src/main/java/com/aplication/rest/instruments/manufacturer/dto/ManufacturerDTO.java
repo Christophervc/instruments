@@ -7,6 +7,7 @@ import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
+import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.UUID;
@@ -16,11 +17,13 @@ import java.util.UUID;
 @NoArgsConstructor
 @Builder
 
-public class ManufacturerDTO {
+public class ManufacturerDTO implements Serializable {
+    @java.io.Serial
+    private static final long serialVersionUID = 1L;
 
     private UUID id;
 
-    @NotBlank(message = "El nombre del fabricante es obligatorio")
+    @NotBlank(message = "{manufacturer.name.required}")
     private String name;
 
     private List<Product> productList = new ArrayList<>();

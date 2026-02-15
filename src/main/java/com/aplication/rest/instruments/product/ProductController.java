@@ -16,8 +16,6 @@ import org.springframework.web.bind.annotation.*;
 
 import java.net.URI;
 import java.net.URISyntaxException;
-import java.util.List;
-import java.util.Optional;
 import java.util.UUID;
 
 @RestController
@@ -30,13 +28,13 @@ public class ProductController {
     @GetMapping()
     @Operation(summary = "Get all products", description = "filter by name, price, manufacturer and type ")
     public ResponseEntity<Result<Page<ProductDTO>>> findAll(
-            @ParameterObject  @PageableDefault(size = 10, page = 0, sort = "name") Pageable pageable,
+            @ParameterObject @PageableDefault(size = 10, page = 0, sort = "name") Pageable pageable,
             @ParameterObject ProductSearchCriteria criteria) {
         return ResponseEntity.ok(productService.findAll(pageable, criteria));
     }
 
     @GetMapping("/{id}")
-    public ResponseEntity<Result<Optional<ProductDTO>>> findById(@PathVariable UUID id) {
+    public ResponseEntity<Result<ProductDTO>> findById(@PathVariable UUID id) {
         return ResponseEntity.ok(productService.findById(id));
     }
 
@@ -66,6 +64,4 @@ public class ProductController {
     public ResponseEntity<Result<ProductDTO>> deleteById(@PathVariable UUID id) {
         return ResponseEntity.ok(productService.deleteById(id));
     }
-
-
 }

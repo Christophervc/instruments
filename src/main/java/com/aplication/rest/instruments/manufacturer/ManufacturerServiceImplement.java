@@ -8,7 +8,6 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
-import java.util.Optional;
 import java.util.UUID;
 
 @Service
@@ -23,24 +22,18 @@ public class ManufacturerServiceImplement implements IManufacturerService {
         try {
             List<Manufacturer> manufacturers = manufacturerRepository.findAll();
             if (((manufacturerRepository.findAll()).isEmpty())) return Result.success(List.of());
-            List<ManufacturerDTO> manufaturerDTO = manufacturers.stream().map(manufacturer -> manufacturerMapper.toDTO(manufacturer)).toList();
-            return Result.success(manufaturerDTO);
+            List<ManufacturerDTO> manufacturerDTO = manufacturers.stream().map(manufacturer -> manufacturerMapper.toDTO(manufacturer)).toList();
+            return Result.success(manufacturerDTO);
         } catch (Exception e) {
             return Result.isFailure(new ApiError("DATABASE ERROR", "Error retrieving manufacturers"));
         }
     }
 
     @Override
-    public Result<Optional<ManufacturerDTO>> findById(UUID id) {
-        try {
-            Optional<Manufacturer> optionalManufacturer = manufacturerRepository.findById(id);
-            if (optionalManufacturer.isEmpty()) return Result.success(Optional.empty());
-            Manufacturer manufacturer = optionalManufacturer.get();
-            ManufacturerDTO manufacturerDTO = manufacturerMapper.toDTO(manufacturer);
-            return Result.success(Optional.of(manufacturerDTO));
-        } catch (Exception e) {
-            return Result.isFailure(new ApiError("DATABASE ERROR", "Error retrieving a manufacturer"));
-        }
+    public Result<ManufacturerDTO> findById(UUID id) {
+        Manufacturer manufacturer = manufacturerRepository.findById(id).orElseThrow(() -> new NotFoundException("Not found a manufacturer with id: " + id));
+        ManufacturerDTO manufacturerDTO = manufacturerMapper.toDTO(manufacturer);
+        return Result.success(manufacturerDTO);
     }
 
     @Override

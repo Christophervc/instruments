@@ -8,6 +8,7 @@ import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
+import java.io.Serializable;
 import java.math.BigDecimal;
 import java.util.UUID;
 
@@ -16,7 +17,10 @@ import java.util.UUID;
 @NoArgsConstructor
 @Builder
 
-public class ProductDTO {
+public class ProductDTO implements Serializable {
+
+    @java.io.Serial
+    private static final long serialVersionUID = 1L;
 
     private UUID id;
 

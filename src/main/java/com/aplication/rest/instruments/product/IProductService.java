@@ -7,14 +7,13 @@ import jakarta.servlet.http.HttpServletResponse;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 
-import java.util.Optional;
 import java.util.UUID;
 
 public interface IProductService {
 
     Result<Page<ProductDTO>> findAll(Pageable pageable, ProductSearchCriteria criteria);
 
-    Result<Optional<ProductDTO>> findById(UUID id);
+    Result<ProductDTO> findById(UUID id);
 
     Result<ProductDTO> save(ProductDTO productDTO);
 

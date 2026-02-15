@@ -11,7 +11,6 @@ import org.springframework.web.bind.annotation.*;
 import java.net.URI;
 import java.net.URISyntaxException;
 import java.util.List;
-import java.util.Optional;
 import java.util.UUID;
 
 @RestController
@@ -31,7 +30,7 @@ public class ManufacturerController {
     }
 
     @GetMapping ("/{id}")
-    public ResponseEntity<Result<Optional<ManufacturerDTO>>> findById(@PathVariable UUID id){
+    public ResponseEntity<Result<ManufacturerDTO>> findById(@PathVariable UUID id){
         return ResponseEntity.ok(manufacturerService.findById(id));
     }
 

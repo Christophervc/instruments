@@ -9,6 +9,8 @@ import com.aplication.rest.instruments.product.utils.ProductExcelExporter;
 import com.aplication.rest.instruments.product.utils.ProductHelper;
 import com.aplication.rest.instruments.product.utils.ProductSpecification;
 import jakarta.servlet.http.HttpServletResponse;
+import org.springframework.cache.annotation.CacheEvict;
+import org.springframework.cache.annotation.Cacheable;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
@@ -17,7 +19,6 @@ import org.springframework.data.jpa.domain.Specification;
 import org.springframework.stereotype.Service;
 
 import java.io.IOException;
-import java.util.Optional;
 import java.util.UUID;
 import java.util.stream.Stream;
 
@@ -43,11 +44,13 @@ public class ProductServiceImplement implements IProductService {
         }
     }
 
+    @Cacheable(value = "products", key = "#id")
     @Override
-    public Result<Optional<ProductDTO>> findById(UUID id) {
+    public Result<ProductDTO> findById(UUID id) {
+        // try { Thread.sleep(2000); } catch (InterruptedException e) {}
         Product product = productRepository.findById(id).orElseThrow(() -> new NotFoundException("Product not found with id: " + id));
         ProductDTO productDTO = productMapper.toDTO(product);
-        return Result.success(Optional.of(productDTO));
+        return Result.success(productDTO);
     }
 
     @Override
@@ -67,6 +70,7 @@ public class ProductServiceImplement implements IProductService {
         return Result.success(savedProductDTO);
     }
 
+    @CacheEvict(value = "products", key = "#id")
     @Override
     public Result<ProductDTO> update(UUID id, ProductDTO productDTO) {
         Product existingProduct = productRepository.findById(id).orElseThrow(() -> new NotFoundException("Product not found with id: " + id));
@@ -75,6 +79,7 @@ public class ProductServiceImplement implements IProductService {
         return Result.success(productMapper.toDTO(updatedProduct));
     }
 
+    @Cacheable(value = "products", key = "#sku")
     @Override
     public Result<ProductDTO> findBySku(String sku) {
         Product existingProduct = productRepository.findBySku(sku)
@@ -100,6 +105,7 @@ public class ProductServiceImplement implements IProductService {
         }
     }
 
+    @CacheEvict(value = "products", key = "#id")
     @Override
     @Transactional
     public Result<ProductDTO> deleteById(UUID id) {
