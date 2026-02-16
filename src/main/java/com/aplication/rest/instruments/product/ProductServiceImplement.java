@@ -2,6 +2,8 @@ package com.aplication.rest.instruments.product;
 
 import com.aplication.rest.instruments.core.error_handling.ApiError;
 import com.aplication.rest.instruments.core.error_handling.Result;
+import com.aplication.rest.instruments.manufacturer.Manufacturer;
+import com.aplication.rest.instruments.manufacturer.ManufacturerRepository;
 import com.aplication.rest.instruments.product.dto.ProductDTO;
 import com.aplication.rest.instruments.core.exceptions.NotFoundException;
 import com.aplication.rest.instruments.product.dto.ProductSearchCriteria;
@@ -25,6 +27,9 @@ import java.util.stream.Stream;
 
 @Service
 public class ProductServiceImplement implements IProductService {
+
+    @Autowired
+    private ManufacturerRepository manufacturerRepository;
     @Autowired
     private ProductRepository productRepository;
     @Autowired
@@ -48,7 +53,8 @@ public class ProductServiceImplement implements IProductService {
     @Override
     public Result<ProductDTO> findById(UUID id) {
         // try { Thread.sleep(2000); } catch (InterruptedException e) {}
-        Product product = productRepository.findById(id).orElseThrow(() -> new NotFoundException("Product not found with id: " + id));
+        Product product = productRepository.findById(id)
+                .orElseThrow(() -> new NotFoundException("Product not found with id: " + id));
         ProductDTO productDTO = productMapper.toDTO(product);
         return Result.success(productDTO);
     }
@@ -72,9 +78,22 @@ public class ProductServiceImplement implements IProductService {
 
     @CacheEvict(value = "products", key = "#id")
     @Override
+    @Transactional
     public Result<ProductDTO> update(UUID id, ProductDTO productDTO) {
-        Product existingProduct = productRepository.findById(id).orElseThrow(() -> new NotFoundException("Product not found with id: " + id));
+        Product existingProduct = productRepository.findById(id)
+                .orElseThrow(() -> new NotFoundException("Product not found with id: " + id));
         productMapper.updateProductFromDTO(productDTO, existingProduct);
+
+        if(productDTO.getManufacturer() != null && productDTO.getManufacturer().getId() != null) {
+            UUID newManufId = productDTO.getManufacturer().getId();
+            UUID currentManufId = existingProduct.getManufacturer().getId();
+            if(!newManufId.equals(currentManufId)) {
+                Manufacturer newManufacturer = manufacturerRepository.findById(newManufId)
+                        .orElseThrow(() -> new NotFoundException("Manufacturer not found with id: " + newManufId));
+                existingProduct.setManufacturer(newManufacturer);
+            }
+        }
+
         Product updatedProduct = productRepository.save(existingProduct);
         return Result.success(productMapper.toDTO(updatedProduct));
     }
