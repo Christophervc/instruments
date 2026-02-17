@@ -11,6 +11,7 @@ import com.aplication.rest.instruments.product.utils.ProductExcelExporter;
 import com.aplication.rest.instruments.product.utils.ProductHelper;
 import com.aplication.rest.instruments.product.utils.ProductSpecification;
 import jakarta.servlet.http.HttpServletResponse;
+import jakarta.validation.ValidationException;
 import org.springframework.cache.annotation.CacheEvict;
 import org.springframework.cache.annotation.Cacheable;
 import org.springframework.transaction.annotation.Transactional;
@@ -21,6 +22,7 @@ import org.springframework.data.jpa.domain.Specification;
 import org.springframework.stereotype.Service;
 
 import java.io.IOException;
+import java.util.Optional;
 import java.util.UUID;
 import java.util.stream.Stream;
 
@@ -60,12 +62,31 @@ public class ProductServiceImplement implements IProductService {
     }
 
     @Override
+    @Transactional
     public Result<ProductDTO> save(ProductDTO productDTO) {
+        if (productDTO.getManufacturer() == null || productDTO.getManufacturer().getId() == null) {
+            throw new ValidationException("Manufacturer is mandatory");
+        }
         Product product = productMapper.toEntity(productDTO);
+
+        UUID manufacturerId = productDTO.getManufacturer().getId();
+        Manufacturer manufacturer = manufacturerRepository.findById(manufacturerId)
+                .orElseThrow(() -> new NotFoundException("Manufacturer not found with id: " + manufacturerId));
+        product.setManufacturer(manufacturer);
+
         if (product.getId() == null) {
             product.setId(UUID.randomUUID());
         }
         product.setSlug(productHelper.generateSlug(product.getName(), product.getId()));
+
+        if (productDTO.getSku() != null) {
+            Optional<Product> existingSku = productRepository.findBySku(productDTO.getSku());
+            if (existingSku.isPresent()) {
+                throw new ValidationException("SKU " + productDTO.getSku() + " already exists ");
+            }
+            product.setSku(productDTO.getSku());
+        }
+        product.setActive(true);
         Product savedProduct = productRepository.save(product);
         ProductDTO savedProductDTO = productMapper.toDTO(savedProduct);
         return Result.success(savedProductDTO);
