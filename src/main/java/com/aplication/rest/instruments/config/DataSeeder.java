@@ -48,7 +48,7 @@ public class DataSeeder implements CommandLineRunner {
                         .image_url("https://placehold.co/600x400")
                         .build();
                 p.setSku(productHelper.generateSku(p));
-                p.setSlug(productHelper.generateSlug(p.getName()));
+                p.setSlug(productHelper.generateSlug(p.getName(), p.getId()));
                 products.add(p);
             }
             productRepository.saveAll(products);

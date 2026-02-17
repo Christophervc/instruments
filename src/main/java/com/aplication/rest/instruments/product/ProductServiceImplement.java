@@ -62,32 +62,31 @@ public class ProductServiceImplement implements IProductService {
     @Override
     public Result<ProductDTO> save(ProductDTO productDTO) {
         Product product = productMapper.toEntity(productDTO);
-
-        if (product.getSku() == null || product.getSku().isBlank()) {
-            product.setSku(productHelper.generateSku(product));
+        if (product.getId() == null) {
+            product.setId(UUID.randomUUID());
         }
-        product.setSlug(productHelper.generateSlug(product.getName()));
-        if (product.getStock() == null) {
-            product.setStock(0);
-        }
-
+        product.setSlug(productHelper.generateSlug(product.getName(), product.getId()));
         Product savedProduct = productRepository.save(product);
         ProductDTO savedProductDTO = productMapper.toDTO(savedProduct);
         return Result.success(savedProductDTO);
     }
 
-    @CacheEvict(value = "products", key = "#id")
     @Override
+    @CacheEvict(value = "products", key = "#id")
     @Transactional
     public Result<ProductDTO> update(UUID id, ProductDTO productDTO) {
         Product existingProduct = productRepository.findById(id)
                 .orElseThrow(() -> new NotFoundException("Product not found with id: " + id));
+        if (productDTO.getName() != null && !productDTO.getName().equals(existingProduct.getName())) {
+            String slug = productHelper.generateSlug(productDTO.getName(), id);
+            existingProduct.setSlug(slug);
+        }
         productMapper.updateProductFromDTO(productDTO, existingProduct);
 
-        if(productDTO.getManufacturer() != null && productDTO.getManufacturer().getId() != null) {
+        if (productDTO.getManufacturer() != null && productDTO.getManufacturer().getId() != null) {
             UUID newManufId = productDTO.getManufacturer().getId();
             UUID currentManufId = existingProduct.getManufacturer().getId();
-            if(!newManufId.equals(currentManufId)) {
+            if (!newManufId.equals(currentManufId)) {
                 Manufacturer newManufacturer = manufacturerRepository.findById(newManufId)
                         .orElseThrow(() -> new NotFoundException("Manufacturer not found with id: " + newManufId));
                 existingProduct.setManufacturer(newManufacturer);
@@ -102,7 +101,7 @@ public class ProductServiceImplement implements IProductService {
     @Override
     public Result<ProductDTO> findBySku(String sku) {
         Product existingProduct = productRepository.findBySku(sku)
-                .orElseThrow(()-> new NotFoundException("Product not found with sku:" + sku));
+                .orElseThrow(() -> new NotFoundException("Product not found with sku:" + sku));
         ProductDTO productDTO = productMapper.toDTO(existingProduct);
         return Result.success(productDTO);
     }
