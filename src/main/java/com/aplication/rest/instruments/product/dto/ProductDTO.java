@@ -38,7 +38,7 @@ public class ProductDTO implements Serializable {
     private BigDecimal price;
 
     private String slug;
-
+    @NotBlank(message = "{product.sku.required}")
     @Size(min = 3, message = "{product.sku.min}")
     private String sku;
 
