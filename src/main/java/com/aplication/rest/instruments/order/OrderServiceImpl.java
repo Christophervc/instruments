@@ -3,12 +3,16 @@ package com.aplication.rest.instruments.order;
 import com.aplication.rest.instruments.core.error_handling.Result;
 import com.aplication.rest.instruments.core.exceptions.NotFoundException;
 import com.aplication.rest.instruments.order.dto.OrderDTO;
+import com.aplication.rest.instruments.order.dto.OrderItemRequest;
 import com.aplication.rest.instruments.order.dto.OrderRequest;
 import com.aplication.rest.instruments.order.dto.OrderSearchCriteria;
 import com.aplication.rest.instruments.order.enums.OrderStatus;
 import com.aplication.rest.instruments.order.utils.OrderSpecification;
+import com.aplication.rest.instruments.product.IProductService;
 import com.aplication.rest.instruments.product.Product;
+import com.aplication.rest.instruments.product.ProductMapper;
 import com.aplication.rest.instruments.product.ProductRepository;
+import com.aplication.rest.instruments.product.dto.ProductDTO;
 import jakarta.transaction.Transactional;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
@@ -26,8 +30,9 @@ import java.util.UUID;
 public class OrderServiceImpl implements IOrderService {
 
     private final OrderRepository orderRepository;
-    private final ProductRepository productRepository;
     private final OrderMapper orderMapper;
+    private final ProductRepository productRepository;
+    private final IProductService productService;
 
     @Override
     @Transactional
@@ -37,32 +42,26 @@ public class OrderServiceImpl implements IOrderService {
         List<OrderItem> orderItems = new ArrayList<>();
         BigDecimal total = BigDecimal.ZERO;
 
-        for (var itemRequest : request.products()) {
-            Product product = productRepository.findById(itemRequest.productId())
-                    .orElseThrow(() -> new NotFoundException("Product not found with id: " + itemRequest.productId()));
+        for (OrderItemRequest itemRequest : request.products()) {
+            Result<ProductDTO> result = productService.reduceStock(itemRequest.productId(), itemRequest.quantity());
+            ProductDTO productDTO = result.data();
+            Product productRef = productRepository.getReferenceById(productDTO.getId());
 
-            if (product.getStock() < itemRequest.quantity()) {
-                throw new RuntimeException("Insufficient stock for: " + product.getName());
-            }
-
-            product.setStock(product.getStock() - itemRequest.quantity());
-            productRepository.save(product);
-
-            OrderItem item = OrderItem.builder()
+            OrderItem orderItem = OrderItem.builder()
                     .order(order)
-                    .product(product)
+                    .product(productRef)
                     .quantity(itemRequest.quantity())
-                    .price(product.getPrice())
+                    .price(productDTO.getPrice())
                     .build();
-            orderItems.add(item);
+            orderItems.add(orderItem);
 
-            BigDecimal subtotal = product.getPrice().multiply(new BigDecimal(itemRequest.quantity()));
-
+            BigDecimal subtotal = productDTO.getPrice().multiply(new BigDecimal(itemRequest.quantity()));
             total = total.add(subtotal);
         }
         order.setItems(orderItems);
         order.setTotal(total);
         order.setStatus(OrderStatus.PENDING);
+
         Order savedOrder = orderRepository.save(order);
         return Result.success(orderMapper.toDTO(savedOrder));
     }
@@ -75,10 +74,7 @@ public class OrderServiceImpl implements IOrderService {
         }
 
         for (OrderItem item : order.getItems()) {
-            Product product = item.getProduct();
-
-            product.setStock(product.getStock() + item.getQuantity());
-            productRepository.save(product);
+            productService.addStock(item.getProduct().getId(), item.getQuantity());
         }
         order.setStatus(OrderStatus.CANCELLED);
         Order savedOrder = orderRepository.save(order);

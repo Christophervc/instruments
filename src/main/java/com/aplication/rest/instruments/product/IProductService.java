@@ -24,4 +24,8 @@ public interface IProductService {
     Result<ProductDTO> findBySku(String sku);
 
     void exportProductsToExcel(HttpServletResponse response);
+
+    Result<ProductDTO> reduceStock(UUID id, Integer quantity);
+
+    Result<ProductDTO> addStock(UUID id, Integer quantity);
 }

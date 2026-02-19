@@ -144,6 +144,31 @@ public class ProductServiceImplement implements IProductService {
         }
     }
 
+    @Override
+    @Transactional
+    @CacheEvict(value = {"products", "products_sku"}, key = "#id")
+    public Result<ProductDTO> reduceStock(UUID id, Integer quantity) {
+        Product product = productRepository.findById(id)
+                .orElseThrow(()-> new NotFoundException("Product not found with id: "+ id));
+        if(product.getStock() < quantity){
+            throw  new ValidationException("Insufficient stock - product: " + product.getName());
+        }
+        product.setStock(product.getStock() - quantity);
+        Product saved = productRepository.save(product);
+        return Result.success(productMapper.toDTO(saved));
+    }
+
+    @Override
+    @Transactional
+    @CacheEvict(value = {"products", "products_sku"}, key = "#id")
+    public Result<ProductDTO> addStock(UUID id, Integer quantity) {
+        Product product = productRepository.findById(id)
+                .orElseThrow(()-> new NotFoundException("Product no found"));
+        product.setStock(product.getStock() + quantity);
+        Product saved = productRepository.save(product);
+        return Result.success(productMapper.toDTO(saved));
+    }
+
     @CacheEvict(value = "products", key = "#id")
     @Override
     @Transactional
@@ -154,5 +179,7 @@ public class ProductServiceImplement implements IProductService {
         ProductDTO productDTO = productMapper.toDTO(deletedProduct);
         return Result.success(productDTO);
     }
+
+
 
 }
