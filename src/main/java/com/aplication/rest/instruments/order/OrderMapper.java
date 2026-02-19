@@ -13,7 +13,7 @@ public interface OrderMapper {
     @Mapping(target = "items", source = "items")
     OrderDTO toDTO(Order order);
     @Mapping(target = "productId", source = "product.id")
-    @Mapping(target = "productName", source = "product.name")
+
     @Mapping(target = "subtotal", expression = "java(calculateSubtotal(item))")
     OrderItemDTO toDTO(OrderItem item);
 

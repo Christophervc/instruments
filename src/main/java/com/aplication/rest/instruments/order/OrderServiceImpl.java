@@ -50,10 +50,12 @@ public class OrderServiceImpl implements IOrderService {
             OrderItem orderItem = OrderItem.builder()
                     .order(order)
                     .product(productRef)
+                    .productName(productDTO.getName())//snapshot product name
                     .quantity(itemRequest.quantity())
-                    .price(productDTO.getPrice())
+                    .price(productDTO.getPrice())//snapshot product price
                     .build();
             orderItems.add(orderItem);
+
 
             BigDecimal subtotal = productDTO.getPrice().multiply(new BigDecimal(itemRequest.quantity()));
             total = total.add(subtotal);
