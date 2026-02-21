@@ -10,15 +10,14 @@ import com.aplication.rest.instruments.order.enums.OrderStatus;
 import com.aplication.rest.instruments.order.utils.OrderSpecification;
 import com.aplication.rest.instruments.product.IProductService;
 import com.aplication.rest.instruments.product.Product;
-import com.aplication.rest.instruments.product.ProductMapper;
 import com.aplication.rest.instruments.product.ProductRepository;
 import com.aplication.rest.instruments.product.dto.ProductDTO;
-import jakarta.transaction.Transactional;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.domain.Specification;
 import org.springframework.stereotype.Service;
 import lombok.RequiredArgsConstructor;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.math.BigDecimal;
 import java.util.ArrayList;

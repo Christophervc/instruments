@@ -2,6 +2,7 @@ package com.aplication.rest.instruments.product;
 
 import com.aplication.rest.instruments.core.error_handling.ApiError;
 import com.aplication.rest.instruments.core.error_handling.Result;
+import com.aplication.rest.instruments.core.exceptions.ValidationException;
 import com.aplication.rest.instruments.manufacturer.Manufacturer;
 import com.aplication.rest.instruments.manufacturer.ManufacturerRepository;
 import com.aplication.rest.instruments.product.dto.ProductDTO;
@@ -11,7 +12,6 @@ import com.aplication.rest.instruments.product.utils.ProductExcelExporter;
 import com.aplication.rest.instruments.product.utils.ProductHelper;
 import com.aplication.rest.instruments.product.utils.ProductSpecification;
 import jakarta.servlet.http.HttpServletResponse;
-import jakarta.validation.ValidationException;
 import org.springframework.cache.annotation.CacheEvict;
 import org.springframework.cache.annotation.Cacheable;
 import org.springframework.transaction.annotation.Transactional;

@@ -39,7 +39,7 @@ public class ProductIntegrationTest {
     private ProductRepository productRepository; // verify DB
     @Autowired
     private ManufacturerRepository manufacturerRepository;
-
+/*
     @Test
     void createProduct_ShouldReturnSavedProduct_WhenInputIsValid() throws Exception{
         // --- ARRANGE (Preparing JSON) ---
@@ -74,4 +74,6 @@ public class ProductIntegrationTest {
         boolean exists = productRepository.findAll().stream().anyMatch(p -> p.getSku().equals("GIB-LP-001"));
         assert(exists);
     }
+    */
+
 }

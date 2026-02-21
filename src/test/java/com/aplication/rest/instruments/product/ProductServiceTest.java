@@ -2,12 +2,12 @@ package com.aplication.rest.instruments.product;
 
 import com.aplication.rest.instruments.core.error_handling.Result;
 import com.aplication.rest.instruments.core.exceptions.NotFoundException;
+import com.aplication.rest.instruments.core.exceptions.ValidationException;
 import com.aplication.rest.instruments.manufacturer.Manufacturer;
 import com.aplication.rest.instruments.manufacturer.ManufacturerRepository;
 import com.aplication.rest.instruments.manufacturer.dto.ManufacturerDTO;
 import com.aplication.rest.instruments.product.dto.ProductDTO;
 import com.aplication.rest.instruments.product.utils.ProductHelper;
-import jakarta.validation.ValidationException;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
@@ -147,10 +147,7 @@ public class ProductServiceTest {
 
         // --- ACT & ASSERT ---
         // Verify exception
-        assertThrows(NotFoundException.class, () -> {
-            productService.findById(id);
-        });
-
+        assertThrows(NotFoundException.class, () -> productService.findById(id));
         // Verify mapper is NEVER called (because it failed before).
         verify(productMapper, never()).toDTO(any());
     }
