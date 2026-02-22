@@ -16,7 +16,7 @@ public interface IProductService {
 
     Result<ProductDTO> findById(UUID id);
 
-    Result<ProductDTO> save(ProductDTO productDTO);
+    Result<ProductDTO> save(ProductDTO productDTO, MultipartFile file);
 
     Result<ProductDTO> deleteById(UUID id);
 

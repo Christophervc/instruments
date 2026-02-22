@@ -11,13 +11,12 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.web.PageableDefault;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 
-import java.net.URI;
-import java.net.URISyntaxException;
 import java.util.UUID;
 
 @RestController
@@ -50,11 +49,11 @@ public class ProductController {
         productService.exportProductsToExcel(response);
     }
 
-    @PostMapping()
-    public ResponseEntity<Result<ProductDTO>> save(@Valid @RequestBody ProductDTO productDTO) throws URISyntaxException {
-        Result<ProductDTO> result = productService.save(productDTO);
-        return ResponseEntity.created(new URI("/api/v1/products/" + result.data().getId()))
-                .body(result);
+    @PostMapping(consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
+    public ResponseEntity<Result<ProductDTO>> save(@RequestPart("product") @Valid ProductDTO productDTO,
+                                                   @RequestPart(value = "file", required = false) MultipartFile file){
+        Result<ProductDTO> result = productService.save(productDTO, file);
+        return ResponseEntity.status(HttpStatus.CREATED).body(result);
     }
 
     @PostMapping(value = "/{id}/image", consumes = MediaType.MULTIPART_FORM_DATA_VALUE)

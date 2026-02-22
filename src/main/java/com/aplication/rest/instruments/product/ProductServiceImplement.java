@@ -69,7 +69,7 @@ public class ProductServiceImplement implements IProductService {
 
     @Override
     @Transactional
-    public Result<ProductDTO> save(ProductDTO productDTO) {
+    public Result<ProductDTO> save(ProductDTO productDTO, MultipartFile file) {
         if (productDTO.getManufacturer() == null || productDTO.getManufacturer().getId() == null) {
             throw new ValidationException("Manufacturer is mandatory");
         }
@@ -88,12 +88,19 @@ public class ProductServiceImplement implements IProductService {
         if (productDTO.getSku() != null) {
             Optional<Product> existingSku = productRepository.findBySku(productDTO.getSku());
             if (existingSku.isPresent()) {
-                throw new ValidationException("SKU " + productDTO.getSku() + " already exists ");
+                throw new ValidationException("SKU: " + productDTO.getSku() + " already exists ");
             }
             product.setSku(productDTO.getSku());
         }
         product.setActive(true);
         Product savedProduct = productRepository.save(product);
+
+        if(file != null && !file.isEmpty()){
+            String imageUrl = storageService.uploadImage(file);
+            savedProduct.setImage_url(imageUrl);
+            productRepository.save(savedProduct);
+        }
+
         ProductDTO savedProductDTO = productMapper.toDTO(savedProduct);
         return Result.success(savedProductDTO);
     }
