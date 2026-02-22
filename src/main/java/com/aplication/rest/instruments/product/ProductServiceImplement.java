@@ -3,6 +3,7 @@ package com.aplication.rest.instruments.product;
 import com.aplication.rest.instruments.core.error_handling.ApiError;
 import com.aplication.rest.instruments.core.error_handling.Result;
 import com.aplication.rest.instruments.core.exceptions.ValidationException;
+import com.aplication.rest.instruments.core.storage.StorageService;
 import com.aplication.rest.instruments.manufacturer.Manufacturer;
 import com.aplication.rest.instruments.manufacturer.ManufacturerRepository;
 import com.aplication.rest.instruments.product.dto.ProductDTO;
@@ -12,6 +13,7 @@ import com.aplication.rest.instruments.product.utils.ProductExcelExporter;
 import com.aplication.rest.instruments.product.utils.ProductHelper;
 import com.aplication.rest.instruments.product.utils.ProductSpecification;
 import jakarta.servlet.http.HttpServletResponse;
+import lombok.RequiredArgsConstructor;
 import org.springframework.cache.annotation.CacheEvict;
 import org.springframework.cache.annotation.Cacheable;
 import org.springframework.transaction.annotation.Transactional;
@@ -20,6 +22,7 @@ import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.domain.Specification;
 import org.springframework.stereotype.Service;
+import org.springframework.web.multipart.MultipartFile;
 
 import java.io.IOException;
 import java.util.Optional;
@@ -28,6 +31,7 @@ import java.util.stream.Stream;
 
 
 @Service
+@RequiredArgsConstructor
 public class ProductServiceImplement implements IProductService {
 
     @Autowired
@@ -38,6 +42,8 @@ public class ProductServiceImplement implements IProductService {
     private ProductMapper productMapper;
     @Autowired
     private ProductHelper productHelper;
+
+    private final StorageService storageService;
 
     @Override
     public Result<Page<ProductDTO>> findAll(Pageable pageable, ProductSearchCriteria criteria) {
@@ -149,9 +155,9 @@ public class ProductServiceImplement implements IProductService {
     @CacheEvict(value = {"products", "products_sku"}, key = "#id")
     public Result<ProductDTO> reduceStock(UUID id, Integer quantity) {
         Product product = productRepository.findById(id)
-                .orElseThrow(()-> new NotFoundException("Product not found with id: "+ id));
-        if(product.getStock() < quantity){
-            throw  new ValidationException("Insufficient stock - product: " + product.getName());
+                .orElseThrow(() -> new NotFoundException("Product not found with id: " + id));
+        if (product.getStock() < quantity) {
+            throw new ValidationException("Insufficient stock - product: " + product.getName());
         }
         product.setStock(product.getStock() - quantity);
         Product saved = productRepository.save(product);
@@ -163,10 +169,22 @@ public class ProductServiceImplement implements IProductService {
     @CacheEvict(value = {"products", "products_sku"}, key = "#id")
     public Result<ProductDTO> addStock(UUID id, Integer quantity) {
         Product product = productRepository.findById(id)
-                .orElseThrow(()-> new NotFoundException("Product no found"));
+                .orElseThrow(() -> new NotFoundException("Product no found"));
         product.setStock(product.getStock() + quantity);
         Product saved = productRepository.save(product);
         return Result.success(productMapper.toDTO(saved));
+    }
+
+    @Override
+    @Transactional
+    @CacheEvict(value = {"products", "products_sku"}, key = "#id")
+    public Result<ProductDTO> uploadImage(UUID id, MultipartFile file) {
+        Product existingProduct = productRepository.findById(id)
+                .orElseThrow(() -> new NotFoundException("Product id not found: " + id));
+        String imageUrl = storageService.uploadImage(file);
+        existingProduct.setImage_url(imageUrl);
+        Product savedProduct = productRepository.save(existingProduct);
+        return Result.success(productMapper.toDTO(savedProduct));
     }
 
     @CacheEvict(value = "products", key = "#id")
@@ -179,7 +197,4 @@ public class ProductServiceImplement implements IProductService {
         ProductDTO productDTO = productMapper.toDTO(deletedProduct);
         return Result.success(productDTO);
     }
-
-
-
 }
