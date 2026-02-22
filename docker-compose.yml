@@ -19,7 +19,22 @@ services:
       - "6379:6379"
     networks:
       - instruments-network
+  minio:
+    image: minio/minio:latest
+    container_name: instruments-minio
+    ports:
+      - "9000:9000" # Port for MinIO
+      - "9001:9001" # Port for MinIO Console
+    environment:
+      MINIO_ROOT_USER: ${MINIO_ROOT_USER}
+      MINIO_ROOT_PASSWORD: ${MINIO_ROOT_PASSWORD}
+    command: server /data --console-address ":9001"
+    networks:
+      - instruments-network
+    volumes:
+      - minio-data:/data
 volumes:
   postgres-data:
+  minio-data:
 networks:
   instruments-network:
