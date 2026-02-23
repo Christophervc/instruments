@@ -3,6 +3,7 @@ package com.aplication.rest.instruments.core.storage;
 import com.aplication.rest.instruments.core.exceptions.ValidationException;
 import io.minio.PutObjectArgs;
 import io.minio.MinioClient;
+import io.minio.RemoveObjectArgs;
 import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
@@ -12,6 +13,7 @@ import java.io.InputStream;
 import java.util.List;
 import java.util.Objects;
 import java.util.UUID;
+
 
 @Service
 @RequiredArgsConstructor
@@ -60,6 +62,25 @@ public class StorageService {
         } catch (Exception e) {
             // Transform any error (network, minio down) into a server error
             throw new RuntimeException("Error uploading image to storage server", e);
+        }
+    }
+
+    public void deleteImage(String imageUrl) {
+        if (imageUrl == null || imageUrl.isBlank()) {
+            return;
+        }
+        try {
+            String objectName = imageUrl.substring(imageUrl.lastIndexOf("/") + 1);
+
+            minioClient.removeObject(RemoveObjectArgs.builder()
+                    .bucket(bucketName)
+                    .object(objectName)
+                    .build());
+            System.out.println("Image successfully removed: " + objectName);
+
+        } catch (Exception e) {
+            System.out.println("Error removing image: "+ e.getMessage());
+
         }
     }
 }

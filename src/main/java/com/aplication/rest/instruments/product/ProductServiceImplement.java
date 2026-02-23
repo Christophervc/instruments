@@ -95,7 +95,7 @@ public class ProductServiceImplement implements IProductService {
         product.setActive(true);
         Product savedProduct = productRepository.save(product);
 
-        if(file != null && !file.isEmpty()){
+        if (file != null && !file.isEmpty()) {
             String imageUrl = storageService.uploadImage(file);
             savedProduct.setImage_url(imageUrl);
             productRepository.save(savedProduct);
@@ -109,20 +109,31 @@ public class ProductServiceImplement implements IProductService {
     @CacheEvict(value = "products", key = "#id")
     @Transactional
     public Result<ProductDTO> update(UUID id, ProductDTO productDTO) {
+
         Product existingProduct = productRepository.findById(id)
                 .orElseThrow(() -> new NotFoundException("Product not found with id: " + id));
-        if (productDTO.getName() != null && !productDTO.getName().equals(existingProduct.getName())) {
-            String slug = productHelper.generateSlug(productDTO.getName(), id);
-            existingProduct.setSlug(slug);
+
+        if (productDTO.getSku() != null && !productDTO.getSku().equals(existingProduct.getSku())) {
+            Optional<Product> ownerOfSku = productRepository.findBySku(productDTO.getSku());
+            if (ownerOfSku.isPresent() && !ownerOfSku.get().getId().equals(id)) {
+                throw new ValidationException("SKU " + productDTO.getSku() + " is already in use");
+            }
         }
+
+        if (productDTO.getName() != null && !productDTO.getName().equals(existingProduct.getName())) {
+            String newSlug = productHelper.generateSlug(productDTO.getName(), id);
+            existingProduct.setSlug(newSlug);
+        }
+
         productMapper.updateProductFromDTO(productDTO, existingProduct);
 
         if (productDTO.getManufacturer() != null && productDTO.getManufacturer().getId() != null) {
-            UUID newManufId = productDTO.getManufacturer().getId();
-            UUID currentManufId = existingProduct.getManufacturer().getId();
-            if (!newManufId.equals(currentManufId)) {
-                Manufacturer newManufacturer = manufacturerRepository.findById(newManufId)
-                        .orElseThrow(() -> new NotFoundException("Manufacturer not found with id: " + newManufId));
+            UUID newManuId = productDTO.getManufacturer().getId();
+            UUID currentManuId = existingProduct.getManufacturer().getId();
+
+            if (!newManuId.equals(currentManuId)) {
+                Manufacturer newManufacturer = manufacturerRepository.findById(newManuId)
+                        .orElseThrow(() -> new NotFoundException("Manufacturer not found with id: " + newManuId));
                 existingProduct.setManufacturer(newManufacturer);
             }
         }
@@ -188,6 +199,11 @@ public class ProductServiceImplement implements IProductService {
     public Result<ProductDTO> uploadImage(UUID id, MultipartFile file) {
         Product existingProduct = productRepository.findById(id)
                 .orElseThrow(() -> new NotFoundException("Product id not found: " + id));
+
+        if (existingProduct.getImage_url() != null) {
+            storageService.deleteImage(existingProduct.getImage_url());
+        }
+
         String imageUrl = storageService.uploadImage(file);
         existingProduct.setImage_url(imageUrl);
         Product savedProduct = productRepository.save(existingProduct);

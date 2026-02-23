@@ -51,7 +51,7 @@ public class ProductController {
 
     @PostMapping(consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
     public ResponseEntity<Result<ProductDTO>> save(@RequestPart("product") @Valid ProductDTO productDTO,
-                                                   @RequestPart(value = "file", required = false) MultipartFile file){
+                                                   @RequestPart(value = "file", required = false) MultipartFile file) {
         Result<ProductDTO> result = productService.save(productDTO, file);
         return ResponseEntity.status(HttpStatus.CREATED).body(result);
     }
@@ -65,8 +65,10 @@ public class ProductController {
     }
 
     @PutMapping("/{id}")
-    public ResponseEntity<Result<ProductDTO>> update(@PathVariable UUID id, @Valid @RequestBody ProductDTO productDTO) {
-        return ResponseEntity.ok(productService.update(id, productDTO));
+    public ResponseEntity<Result<ProductDTO>> update(@PathVariable UUID id,
+            @Valid @RequestBody ProductDTO productDTO) {
+        Result<ProductDTO> result = productService.update(id, productDTO);
+        return ResponseEntity.ok(result);
     }
 
     @DeleteMapping("/{id}")
