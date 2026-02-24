@@ -40,6 +40,7 @@ public class ProductIntegrationTest {
     @Autowired
     private ManufacturerRepository manufacturerRepository;
 /*
+TODO
     @Test
     void createProduct_ShouldReturnSavedProduct_WhenInputIsValid() throws Exception{
         // --- ARRANGE (Preparing JSON) ---
