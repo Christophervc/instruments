@@ -16,7 +16,7 @@ import java.time.LocalDateTime;
 @Getter
 @Setter
 @MappedSuperclass // Indica que esta clase no es una tabla, sino que sus campos van a las tablas de los hijos
-@EntityListeners(AuditingEntityListener.class)
+@EntityListeners(AuditingEntityListener.class) // Indicar a hibernate que escuche eventos de insert/update
 public abstract class AuditableEntity {
 
     @CreatedDate
