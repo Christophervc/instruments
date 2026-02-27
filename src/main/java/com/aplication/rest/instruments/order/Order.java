@@ -2,6 +2,7 @@ package com.aplication.rest.instruments.order;
 
 import com.aplication.rest.instruments.core.audit.AuditableEntity;
 import com.aplication.rest.instruments.order.enums.OrderStatus;
+import com.aplication.rest.instruments.user.User;
 import jakarta.persistence.*;
 import lombok.*;
 import org.hibernate.annotations.UuidGenerator;
@@ -28,6 +29,10 @@ public class Order extends AuditableEntity {
     @UuidGenerator(style = UuidGenerator.Style.TIME)
     private UUID id;
 
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "user_id", nullable = false)
+    private User user;
+
     @Enumerated(EnumType.STRING)
     @Column(name = "status")
     private OrderStatus status;
@@ -37,5 +42,6 @@ public class Order extends AuditableEntity {
 
 
     @OneToMany(mappedBy = "order", cascade = CascadeType.ALL, orphanRemoval = true)
+    @Builder.Default
     private List<OrderItem> items = new ArrayList<>();
 }

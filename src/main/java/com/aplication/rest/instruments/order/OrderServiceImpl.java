@@ -12,9 +12,15 @@ import com.aplication.rest.instruments.product.IProductService;
 import com.aplication.rest.instruments.product.Product;
 import com.aplication.rest.instruments.product.ProductRepository;
 import com.aplication.rest.instruments.product.dto.ProductDTO;
+import com.aplication.rest.instruments.user.User;
+import com.aplication.rest.instruments.user.UserRepository;
+import com.aplication.rest.instruments.user.enums.Role;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.domain.Specification;
+import org.springframework.security.access.AccessDeniedException;
+import org.springframework.security.core.Authentication;
+import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Service;
 import lombok.RequiredArgsConstructor;
 import org.springframework.transaction.annotation.Transactional;
@@ -32,6 +38,7 @@ public class OrderServiceImpl implements IOrderService {
     private final OrderMapper orderMapper;
     private final ProductRepository productRepository;
     private final IProductService productService;
+    private final UserRepository userRepository;
 
     @Override
     @Transactional
@@ -40,6 +47,9 @@ public class OrderServiceImpl implements IOrderService {
         Order order = new Order();
         List<OrderItem> orderItems = new ArrayList<>();
         BigDecimal total = BigDecimal.ZERO;
+        User currentUser = getCurrentUser();
+        order.setUser(currentUser);
+        order.setStatus(OrderStatus.PENDING);
 
         for (OrderItemRequest itemRequest : request.products()) {
             Result<ProductDTO> result = productService.reduceStock(itemRequest.productId(), itemRequest.quantity());
@@ -55,13 +65,11 @@ public class OrderServiceImpl implements IOrderService {
                     .build();
             orderItems.add(orderItem);
 
-
             BigDecimal subtotal = productDTO.getPrice().multiply(new BigDecimal(itemRequest.quantity()));
             total = total.add(subtotal);
         }
         order.setItems(orderItems);
         order.setTotal(total);
-        order.setStatus(OrderStatus.PENDING);
 
         Order savedOrder = orderRepository.save(order);
         return Result.success(orderMapper.toDTO(savedOrder));
@@ -86,14 +94,30 @@ public class OrderServiceImpl implements IOrderService {
 
     @Override
     public Result<OrderDTO> findById(UUID id) {
-        return orderRepository.findById(id).map(order -> Result.success(orderMapper.toDTO(order)))
-                .orElseThrow(() -> new NotFoundException("Order not found with id: " + id));
+        Order order = orderRepository.findById(id)
+                .orElseThrow(() -> new NotFoundException("Order id not found: " + id));
+        User currentUser = getCurrentUser();
+        if (currentUser.getRole() == Role.ROLE_CUSTOMER && !order.getUser().getId().equals(currentUser.getId())) {
+            throw new AccessDeniedException("You don't have sufficient permissions to view this order.");
+        }
+        return Result.success(orderMapper.toDTO(order));
     }
 
     @Override
     public Result<Page<OrderDTO>> findAll(Pageable pageable, OrderSearchCriteria criteria) {
+        User currentUser = getCurrentUser();
+        Page<Order> ordersPage;
+
+        if (currentUser.getRole() == Role.ROLE_CUSTOMER) {
+            ordersPage = orderRepository.findAllByUserId(currentUser.getId(), pageable);
+        } else {
+            Specification<Order> spec = OrderSpecification.fromCriteria(criteria);
+            ordersPage = orderRepository.findAll(spec, pageable);
+        }
+        /*
         Specification<Order> spec = OrderSpecification.fromCriteria(criteria);
         Page<Order> ordersPage = orderRepository.findAll(spec, pageable);
+        */
         Page<OrderDTO> dtoOrdersPage = ordersPage.map(orderMapper::toDTO);
         return Result.success(dtoOrdersPage);
     }
@@ -112,5 +136,12 @@ public class OrderServiceImpl implements IOrderService {
         Order savedOrder = orderRepository.save(order);
 
         return Result.success(orderMapper.toDTO(savedOrder));
+    }
+
+    private User getCurrentUser() {
+        Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
+        String email = authentication.getName();
+        return userRepository.findByEmail(email)
+                .orElseThrow(() -> new NotFoundException("Authenticated user not found"));
     }
 }

@@ -43,7 +43,7 @@ public class OrderController {
     @PostMapping
     public ResponseEntity<Result<OrderDTO>> createOrder(@Valid @RequestBody OrderRequest request) throws URISyntaxException {
         Result<OrderDTO> result = orderService.createOrder(request);
-        return ResponseEntity.created(new URI("api/v1/orders" + result.data().getId())).body(result);
+        return ResponseEntity.created(new URI("api/v1/orders" + result.data().id())).body(result);
     }
 
     @PatchMapping("/{id}/cancel")

@@ -9,12 +9,13 @@ import java.time.LocalDateTime;
 import java.util.List;
 import java.util.UUID;
 
-@Data
 @Builder
-public class OrderDTO {
-    private UUID id;
-    private LocalDateTime createdAt;
-    private BigDecimal total;
-    private OrderStatus status;
-    private List<OrderItemDTO> items;
+public record OrderDTO(
+        UUID id,
+        CustomerInfoDTO customer,
+        LocalDateTime createdAt,
+        BigDecimal total,
+        OrderStatus status,
+        List<OrderItemDTO> items
+) {
 }
