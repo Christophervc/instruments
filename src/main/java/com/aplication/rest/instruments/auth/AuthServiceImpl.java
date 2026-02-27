@@ -1,9 +1,6 @@
 package com.aplication.rest.instruments.auth;
 
-import com.aplication.rest.instruments.auth.dto.AuthResponse;
-import com.aplication.rest.instruments.auth.dto.LoginRequest;
-import com.aplication.rest.instruments.auth.dto.RegisterRequest;
-import com.aplication.rest.instruments.auth.dto.UserProfileDTO;
+import com.aplication.rest.instruments.auth.dto.*;
 import com.aplication.rest.instruments.auth.jwt.JwtService;
 import com.aplication.rest.instruments.core.error_handling.Result;
 import com.aplication.rest.instruments.core.exceptions.NotFoundException;
@@ -107,5 +104,19 @@ public class AuthServiceImpl implements IAuthService {
                 user.getRole().name()
         );
         return Result.success(profileDTO);
+    }
+
+    @Override
+    @Transactional
+    public Result<String> changePassword(ChangePasswordRequest request) {
+        String email = SecurityContextHolder.getContext().getAuthentication().getName();
+        User user = userRepository.findByEmail(email).orElseThrow(()-> new NotFoundException("User not found"));
+
+        if(passwordEncoder.matches(request.newPassword(), user.getPassword())){
+            throw new ValidationException("The new password must not match the previous one.");
+        }
+        user.setPassword(passwordEncoder.encode(request.newPassword()));
+        userRepository.save(user);
+        return Result.success("The password has been successfully updated.");
     }
 }

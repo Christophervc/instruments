@@ -1,10 +1,7 @@
 package com.aplication.rest.instruments.auth;
 
 
-import com.aplication.rest.instruments.auth.dto.AuthResponse;
-import com.aplication.rest.instruments.auth.dto.LoginRequest;
-import com.aplication.rest.instruments.auth.dto.RegisterRequest;
-import com.aplication.rest.instruments.auth.dto.UserProfileDTO;
+import com.aplication.rest.instruments.auth.dto.*;
 import com.aplication.rest.instruments.core.error_handling.Result;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
@@ -38,5 +35,11 @@ public class AuthController {
     @GetMapping("/me")
     public ResponseEntity<Result<UserProfileDTO>> getMe(){
         return ResponseEntity.ok(authService.getMe());
+    }
+
+    @Operation(summary = "Change password", description = "Allows the authenticated user to change their password")
+    @PutMapping("/change-password")
+    public ResponseEntity<Result<String>> changePassword(@RequestBody @Valid ChangePasswordRequest request){
+        return ResponseEntity.ok(authService.changePassword(request));
     }
 }
