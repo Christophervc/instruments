@@ -3,8 +3,10 @@ package com.aplication.rest.instruments.auth;
 import com.aplication.rest.instruments.auth.dto.AuthResponse;
 import com.aplication.rest.instruments.auth.dto.LoginRequest;
 import com.aplication.rest.instruments.auth.dto.RegisterRequest;
+import com.aplication.rest.instruments.auth.dto.UserProfileDTO;
 import com.aplication.rest.instruments.auth.jwt.JwtService;
 import com.aplication.rest.instruments.core.error_handling.Result;
+import com.aplication.rest.instruments.core.exceptions.NotFoundException;
 import com.aplication.rest.instruments.core.exceptions.ValidationException;
 import com.aplication.rest.instruments.user.User;
 import com.aplication.rest.instruments.user.UserRepository;
@@ -12,6 +14,8 @@ import com.aplication.rest.instruments.user.enums.Role;
 import lombok.RequiredArgsConstructor;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
+import org.springframework.security.core.Authentication;
+import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -84,5 +88,24 @@ public class AuthServiceImpl implements IAuthService {
         String jwtToken = jwtService.generateToken(extraClaims, user);
 
         return Result.success(new AuthResponse(jwtToken,"Login successfully"));
+    }
+
+    @Override
+    public Result<UserProfileDTO> getMe() {
+        Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
+        String email = authentication.getName();
+
+        User user = userRepository.findByEmail(email)
+                .orElseThrow(()-> new NotFoundException("User not found: " + email));
+        UserProfileDTO profileDTO = new UserProfileDTO(
+                user.getId(),
+                user.getFirstName(),
+                user.getLastName(),
+                user.getEmail(),
+                user.getDni(),
+                user.getPhone(),
+                user.getRole().name()
+        );
+        return Result.success(profileDTO);
     }
 }
