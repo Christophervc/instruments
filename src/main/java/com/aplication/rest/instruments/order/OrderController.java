@@ -34,23 +34,27 @@ public class OrderController {
         return ResponseEntity.ok(orderService.findAll(pageable, criteria));
     }
 
+    @Operation(summary = "Get an order details", description = "Get an order details, requires CUSTOMER, ADMIN or STAFF role")
     @GetMapping("/{id}")
     public ResponseEntity<Result<OrderDTO>> orderDetails(@PathVariable UUID id) {
         Result<OrderDTO> result = orderService.findById(id);
         return ResponseEntity.ok(result);
     }
 
+    @Operation(summary = "Create a new order", description = "Create a new order, requires CUSTOMER, ADMIN or STAFF role")
     @PostMapping
     public ResponseEntity<Result<OrderDTO>> createOrder(@Valid @RequestBody OrderRequest request) throws URISyntaxException {
         Result<OrderDTO> result = orderService.createOrder(request);
         return ResponseEntity.created(new URI("api/v1/orders" + result.data().id())).body(result);
     }
 
+    @Operation(summary = "Cancel an order", description = "Cancel an order, requires ADMIN or STAFF role")
     @PatchMapping("/{id}/cancel")
     public ResponseEntity<Result<OrderDTO>> cancelOrder(@PathVariable UUID id) {
         return ResponseEntity.ok(orderService.cancelOrder(id));
     }
 
+    @Operation(summary = "Update an order status", description = "Update an order status, requires ADMIN or STAFF role")
     @PatchMapping("/{id}/status")
     public ResponseEntity<Result<OrderDTO>> updateOrderStatus(@PathVariable UUID id, @Valid @RequestBody UpdateOrderStatusRequest request) {
         return ResponseEntity.ok(orderService.updateOrderStatus(id, request.status()));

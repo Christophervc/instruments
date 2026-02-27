@@ -23,7 +23,13 @@ public class WebConfig implements WebMvcConfigurer {
     @Override
     public void addInterceptors(InterceptorRegistry registry) {
         registry.addInterceptor(rateLimitInterceptor)
-                .addPathPatterns("/api/**");
+                .addPathPatterns("/api/**")
+                .excludePathPatterns(
+                        "/api-docs",
+                        "/api-docs/**",
+                        "/swagger-ui/**",
+                        "/swagger-resources/**",
+                        "/v3/api-docs/**");
     }
 
     @Bean
