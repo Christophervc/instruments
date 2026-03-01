@@ -3,6 +3,7 @@ import com.aplication.rest.instruments.order.Order;
 import com.aplication.rest.instruments.order.dto.OrderSearchCriteria;
 import jakarta.persistence.criteria.Predicate;
 import org.springframework.data.jpa.domain.Specification;
+import org.springframework.util.StringUtils;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -23,6 +24,10 @@ public class OrderSpecification {
 
             if(criteria.endDate() != null) {
                 predicates.add(cb.lessThanOrEqualTo(root.get("createdAt"), criteria.endDate()));
+            }
+
+            if(StringUtils.hasText(criteria.customerDni())) {
+                predicates.add(cb.equal(root.get("user").get("dni"), criteria.customerDni()));
             }
 
             return cb.and(predicates.toArray(new Predicate[0]));
