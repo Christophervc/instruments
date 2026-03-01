@@ -7,8 +7,11 @@ import com.aplication.rest.instruments.user.enums.Role;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
+import org.springframework.security.access.AccessDeniedException;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Service;
+
+import java.util.UUID;
 
 
 @Service
@@ -44,5 +47,36 @@ public class UserServiceImpl implements IUserService {
         ));
 
         return Result.success(dtoUsersPage);
+    }
+
+    @Override
+    public Result<UserProfileDTO> findById(UUID id) {
+
+        String email = SecurityContextHolder.getContext().getAuthentication().getName();
+        User currentUser = userRepository.findByEmail(email)
+                .orElseThrow(()-> new NotFoundException("User not found"));
+
+        User targetUser = userRepository.findById(id)
+                .orElseThrow(()-> new NotFoundException("User not found"));
+
+        if (currentUser.getRole() == Role.ROLE_STAFF) {
+            if (targetUser.getRole() != Role.ROLE_CUSTOMER){
+                throw new AccessDeniedException("Staff only can see customer profiles");
+            }
+        } else if (currentUser.getRole() == Role.ROLE_CUSTOMER) {
+            if (!currentUser.getId().equals(targetUser.getId())){
+                throw new AccessDeniedException("you don not have enough permissions");
+            }
+        }
+        UserProfileDTO profileDTO = new UserProfileDTO(
+                targetUser.getId(),
+                targetUser.getFirstName(),
+                targetUser.getLastName(),
+                targetUser.getEmail(),
+                targetUser.getDni(),
+                targetUser.getPhone(),
+                targetUser.getRole().name()
+        );
+        return Result.success(profileDTO);
     }
 }

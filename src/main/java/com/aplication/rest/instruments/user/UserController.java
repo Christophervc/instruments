@@ -10,8 +10,11 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.data.web.PageableDefault;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
+
+import java.util.UUID;
 
 @RestController
 @RequestMapping("/api/v1/users")
@@ -25,5 +28,11 @@ public class UserController {
     public ResponseEntity<Result<Page<UserProfileDTO>>> findAllUsers(
             @PageableDefault() Pageable pageable){
         return ResponseEntity.ok(userService.findAllUsers(pageable));
+    }
+
+    @Operation(summary = "Get user by id", description = "Admin can see any user, staff can see only customers")
+    @GetMapping("/{id}")
+    public ResponseEntity<Result<UserProfileDTO>> findById(@PathVariable UUID id){
+        return ResponseEntity.ok(userService.findById(id));
     }
 }
