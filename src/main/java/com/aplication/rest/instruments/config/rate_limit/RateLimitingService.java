@@ -16,14 +16,14 @@ public class RateLimitingService {
 
     private final LettuceBasedProxyManager<String> proxyManager;
 
-    public Bucket resolveBucket(String ip) {
+    public Bucket resolveBucket(String clientId) {
         Supplier<BucketConfiguration> configSupplier = this::getGeneralConfiguration;
-        return proxyManager.builder().build("rate_limit:general:" + ip, configSupplier);
+        return proxyManager.builder().build("rate_limit:general:" + clientId, configSupplier);
     }
 
-    public Bucket resolveHeavyBucket(String ip) {
+    public Bucket resolveHeavyBucket(String clientId) {
         Supplier<BucketConfiguration> configSupplier = this::getHeavyConfiguration;
-        return proxyManager.builder().build("rate_limit:heavy:" + ip, configSupplier);
+        return proxyManager.builder().build("rate_limit:heavy:" + clientId, configSupplier);
     }
 
     private BucketConfiguration getGeneralConfiguration() {
