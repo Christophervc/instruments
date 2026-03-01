@@ -1,5 +1,8 @@
 package com.aplication.rest.instruments.user;
 
+import com.aplication.rest.instruments.user.enums.Role;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.stereotype.Repository;
 
@@ -14,4 +17,6 @@ public interface UserRepository extends JpaRepository<User, UUID> {
     boolean existsByEmail(String email);
 
     boolean existsByDni(String dni);
+
+    Page<User> findAllByRole(Role role, Pageable pageable);
 }
