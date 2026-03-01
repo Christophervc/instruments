@@ -52,8 +52,8 @@ public class AuthServiceImpl implements IAuthService {
         //3. save in DB
         userRepository.save(user);
         //4. generate token with extra claims
-        Map<String,Object> extraClaims = new HashMap<>();
-        extraClaims.put("name", user.getFirstName() +" "+ user.getLastName());
+        Map<String, Object> extraClaims = new HashMap<>();
+        extraClaims.put("name", user.getFirstName() + " " + user.getLastName());
         extraClaims.put("role", user.getRole().name());
 
         String jwtToken = jwtService.generateToken(extraClaims, user);
@@ -74,7 +74,7 @@ public class AuthServiceImpl implements IAuthService {
         User user = userRepository.findByEmail(request.email())
                 .orElseThrow();
 
-        if (!user.getActive()){
+        if (!user.getActive()) {
             throw new ValidationException("This account has been deactivated");
         }
         //Generate token
@@ -84,7 +84,7 @@ public class AuthServiceImpl implements IAuthService {
 
         String jwtToken = jwtService.generateToken(extraClaims, user);
 
-        return Result.success(new AuthResponse(jwtToken,"Login successfully"));
+        return Result.success(new AuthResponse(jwtToken, "Login successfully"));
     }
 
     @Override
@@ -93,7 +93,7 @@ public class AuthServiceImpl implements IAuthService {
         String email = authentication.getName();
 
         User user = userRepository.findByEmail(email)
-                .orElseThrow(()-> new NotFoundException("User not found: " + email));
+                .orElseThrow(() -> new NotFoundException("User not found: " + email));
         UserProfileDTO profileDTO = new UserProfileDTO(
                 user.getId(),
                 user.getFirstName(),
@@ -110,9 +110,9 @@ public class AuthServiceImpl implements IAuthService {
     @Transactional
     public Result<String> changePassword(ChangePasswordRequest request) {
         String email = SecurityContextHolder.getContext().getAuthentication().getName();
-        User user = userRepository.findByEmail(email).orElseThrow(()-> new NotFoundException("User not found"));
+        User user = userRepository.findByEmail(email).orElseThrow(() -> new NotFoundException("User not found"));
 
-        if(passwordEncoder.matches(request.newPassword(), user.getPassword())){
+        if (passwordEncoder.matches(request.newPassword(), user.getPassword())) {
             throw new ValidationException("The new password must not match the previous one.");
         }
         user.setPassword(passwordEncoder.encode(request.newPassword()));
