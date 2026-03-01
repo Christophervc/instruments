@@ -3,6 +3,7 @@ package com.aplication.rest.instruments.user;
 import com.aplication.rest.instruments.auth.dto.UserProfileDTO;
 import com.aplication.rest.instruments.core.error_handling.Result;
 import com.aplication.rest.instruments.core.exceptions.NotFoundException;
+import com.aplication.rest.instruments.user.dto.ChangeRoleRequest;
 import com.aplication.rest.instruments.user.enums.Role;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
@@ -10,6 +11,7 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.security.access.AccessDeniedException;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.util.UUID;
 
@@ -77,6 +79,41 @@ public class UserServiceImpl implements IUserService {
                 targetUser.getPhone(),
                 targetUser.getRole().name()
         );
+        return Result.success(profileDTO);
+    }
+
+
+    @Override
+    @Transactional
+    public Result<UserProfileDTO> changeRole(UUID id, ChangeRoleRequest request) {
+        String currentEmail = SecurityContextHolder.getContext().getAuthentication().getName();
+        User currentUser = userRepository.findByEmail(currentEmail)
+                .orElseThrow(()-> new NotFoundException("User not found"));
+
+        if (currentUser.getRole() != Role.ROLE_ADMIN){
+            throw new AccessDeniedException("Only admin can change roles");
+        }
+
+        User targetUser = userRepository.findById(id)
+                .orElseThrow(()-> new NotFoundException("User not found"));
+
+        if (currentUser.getId().equals(targetUser.getId())){
+            throw new AccessDeniedException("You can't change your own role");
+        }
+
+        targetUser.setRole(request.role());
+        User savedUser =userRepository.save(targetUser);
+
+        UserProfileDTO profileDTO = new UserProfileDTO(
+                savedUser.getId(),
+                savedUser.getFirstName(),
+                savedUser.getLastName(),
+                savedUser.getEmail(),
+                savedUser.getDni(),
+                savedUser.getPhone(),
+                savedUser.getRole().name()
+        );
+
         return Result.success(profileDTO);
     }
 }
