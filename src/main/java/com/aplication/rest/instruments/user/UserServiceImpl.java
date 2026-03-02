@@ -3,7 +3,9 @@ package com.aplication.rest.instruments.user;
 import com.aplication.rest.instruments.auth.dto.UserProfileDTO;
 import com.aplication.rest.instruments.core.error_handling.Result;
 import com.aplication.rest.instruments.core.exceptions.NotFoundException;
+import com.aplication.rest.instruments.core.exceptions.ValidationException;
 import com.aplication.rest.instruments.user.dto.ChangeRoleRequest;
+import com.aplication.rest.instruments.user.dto.ChangeStatusRequest;
 import com.aplication.rest.instruments.user.enums.Role;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
@@ -103,6 +105,45 @@ public class UserServiceImpl implements IUserService {
 
         targetUser.setRole(request.role());
         User savedUser =userRepository.save(targetUser);
+
+        UserProfileDTO profileDTO = new UserProfileDTO(
+                savedUser.getId(),
+                savedUser.getFirstName(),
+                savedUser.getLastName(),
+                savedUser.getEmail(),
+                savedUser.getDni(),
+                savedUser.getPhone(),
+                savedUser.getRole().name()
+        );
+
+        return Result.success(profileDTO);
+    }
+
+    @Override
+    @Transactional
+    public Result<UserProfileDTO> changeStatus(UUID id, ChangeStatusRequest request) {
+        // get who is trying to change the status
+        String currentEmail = SecurityContextHolder.getContext().getAuthentication().getName();
+        User currentUser = userRepository.findByEmail(currentEmail)
+                .orElseThrow(() -> new NotFoundException("User not found"));
+        // check if the user is admin
+        if (currentUser.getRole() != Role.ROLE_ADMIN) {
+            throw new AccessDeniedException("Rejected, only admin can change status");
+        }
+        // target user whose status (active) is going to be changed
+        User targetUser = userRepository.findById(id)
+                .orElseThrow(() -> new NotFoundException("User not found, ID: " + id));
+        // prevent self status (active) change
+        if (currentUser.getId().equals(targetUser.getId())) {
+            throw new ValidationException("You can't change your own status");
+        }
+        //prevent if admin tries to change another admin status
+        if (targetUser.getRole() == Role.ROLE_ADMIN) {
+            throw new ValidationException("Operation not allowed, admin can't change another admin status");
+        }
+        // apply and save
+        targetUser.setActive(request.active());
+        User savedUser = userRepository.save(targetUser);
 
         UserProfileDTO profileDTO = new UserProfileDTO(
                 savedUser.getId(),

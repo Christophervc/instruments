@@ -3,6 +3,7 @@ package com.aplication.rest.instruments.user;
 import com.aplication.rest.instruments.auth.dto.UserProfileDTO;
 import com.aplication.rest.instruments.core.error_handling.Result;
 import com.aplication.rest.instruments.user.dto.ChangeRoleRequest;
+import com.aplication.rest.instruments.user.dto.ChangeStatusRequest;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.validation.Valid;
@@ -39,5 +40,11 @@ public class UserController {
     @PutMapping("/{id}/role")
     public ResponseEntity<Result<UserProfileDTO>> changeRole(@PathVariable UUID id, @Valid @RequestBody ChangeRoleRequest request){
         return ResponseEntity.ok(userService.changeRole(id, request));
+    }
+
+    @Operation(summary = "Change user status", description = "Available for admin role")
+    @PutMapping("/{id}/status")
+    public ResponseEntity<Result<UserProfileDTO>> changeStatus(@PathVariable UUID id, @Valid @RequestBody ChangeStatusRequest request){
+        return ResponseEntity.ok(userService.changeStatus(id, request));
     }
 }
