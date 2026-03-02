@@ -6,6 +6,7 @@ import com.aplication.rest.instruments.core.exceptions.NotFoundException;
 import com.aplication.rest.instruments.core.exceptions.ValidationException;
 import com.aplication.rest.instruments.user.dto.ChangeRoleRequest;
 import com.aplication.rest.instruments.user.dto.ChangeStatusRequest;
+import com.aplication.rest.instruments.user.dto.UpdateProfileRequest;
 import com.aplication.rest.instruments.user.enums.Role;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
@@ -155,6 +156,33 @@ public class UserServiceImpl implements IUserService {
                 savedUser.getRole().name()
         );
 
+        return Result.success(profileDTO);
+    }
+
+    @Override
+    @Transactional
+    public Result<UserProfileDTO> updateMe(UpdateProfileRequest request) {
+
+        String currentEmail = SecurityContextHolder.getContext().getAuthentication().getName();
+        User currentUser = userRepository.findByEmail(currentEmail)
+                .orElseThrow(() -> new NotFoundException("User not found"));
+
+        //Update only allowed fields
+        currentUser.setFirstName(request.firstName());
+        currentUser.setLastName(request.lastName());
+        currentUser.setPhone(request.phone());
+
+        User savedUser = userRepository.save(currentUser);
+
+        UserProfileDTO profileDTO = new UserProfileDTO(
+                savedUser.getId(),
+                savedUser.getFirstName(),
+                savedUser.getLastName(),
+                savedUser.getEmail(),
+                savedUser.getDni(),
+                savedUser.getPhone(),
+                savedUser.getRole().name()
+        );
         return Result.success(profileDTO);
     }
 }

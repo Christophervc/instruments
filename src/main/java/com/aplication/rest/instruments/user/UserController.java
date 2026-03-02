@@ -4,6 +4,7 @@ import com.aplication.rest.instruments.auth.dto.UserProfileDTO;
 import com.aplication.rest.instruments.core.error_handling.Result;
 import com.aplication.rest.instruments.user.dto.ChangeRoleRequest;
 import com.aplication.rest.instruments.user.dto.ChangeStatusRequest;
+import com.aplication.rest.instruments.user.dto.UpdateProfileRequest;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.validation.Valid;
@@ -46,5 +47,11 @@ public class UserController {
     @PutMapping("/{id}/status")
     public ResponseEntity<Result<UserProfileDTO>> changeStatus(@PathVariable UUID id, @Valid @RequestBody ChangeStatusRequest request){
         return ResponseEntity.ok(userService.changeStatus(id, request));
+    }
+
+    @Operation(summary = "Update your profile", description = "Available for all roles")
+    @PutMapping("/me")
+    public ResponseEntity<Result<UserProfileDTO>> updateMe(@Valid @RequestBody UpdateProfileRequest request){
+        return ResponseEntity.ok(userService.updateMe(request));
     }
 }
