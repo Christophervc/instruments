@@ -49,6 +49,14 @@ public class OrderServiceImpl implements IOrderService {
         BigDecimal total = BigDecimal.ZERO;
         User currentUser = getCurrentUser();
         order.setUser(currentUser);
+
+        //user details snapshot at the time of the order
+        order.setCustomerEmail(currentUser.getEmail());
+        order.setCustomerFirstName(currentUser.getFirstName());
+        order.setCustomerLastName(currentUser.getLastName());
+        order.setCustomerDni(currentUser.getDni());
+        order.setCustomerPhone(currentUser.getPhone());
+
         order.setStatus(OrderStatus.PENDING);
 
         for (OrderItemRequest itemRequest : request.products()) {

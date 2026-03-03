@@ -33,6 +33,17 @@ public class Order extends AuditableEntity {
     @JoinColumn(name = "user_id", nullable = false)
     private User user;
 
+    @Column(name = "customer_email", nullable = false)
+    private String customerEmail;
+    @Column(name = "customer_first_name", nullable = false)
+    private String customerFirstName;
+    @Column(name = "customer_last_name", nullable = false)
+    private String customerLastName;
+    @Column(name = "customer_dni", nullable = false)
+    private String customerDni;
+    @Column(name = "customer_phone")
+    private String customerPhone;
+
     @Enumerated(EnumType.STRING)
     @Column(name = "status")
     private OrderStatus status;

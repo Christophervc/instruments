@@ -8,5 +8,6 @@ public record CustomerInfoDTO(
         String lastName,
         String email,
         String dni,
-        String phone
+        String phone,
+        Boolean active
 ) {}

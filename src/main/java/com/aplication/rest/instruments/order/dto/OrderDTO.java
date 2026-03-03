@@ -2,7 +2,6 @@ package com.aplication.rest.instruments.order.dto;
 
 import com.aplication.rest.instruments.order.enums.OrderStatus;
 import lombok.Builder;
-import lombok.Data;
 
 import java.math.BigDecimal;
 import java.time.LocalDateTime;
