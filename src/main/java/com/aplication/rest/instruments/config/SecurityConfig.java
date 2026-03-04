@@ -1,4 +1,4 @@
-package com.aplication.rest.instruments.auth;
+package com.aplication.rest.instruments.config;
 
 import com.aplication.rest.instruments.auth.jwt.JwtAuthenticationFilter;
 import lombok.RequiredArgsConstructor;
@@ -58,7 +58,7 @@ public class SecurityConfig {
                         .requestMatchers(HttpMethod.PATCH, "/api/v1/orders/*/status").hasAnyRole("ADMIN", "STAFF")
                         .requestMatchers(HttpMethod.PATCH, "/api/v1/orders/*/cancel").hasAnyRole("ADMIN", "STAFF")
 
-                        .requestMatchers(HttpMethod.POST, "/api/v1/auth/login", "/api/v1/auth/register").permitAll()
+                        .requestMatchers(HttpMethod.POST, "/api/v1/auth/login", "/api/v1/auth/register","api/v1/auth/refresh").permitAll()
                         .requestMatchers(HttpMethod.PUT, "/api/v1/users/me").authenticated()
                         .requestMatchers(HttpMethod.PUT, "/api/v1/users/*/role").hasRole("ADMIN")
                         .requestMatchers(HttpMethod.PUT, "/api/v1/users/*/status").hasRole("ADMIN")

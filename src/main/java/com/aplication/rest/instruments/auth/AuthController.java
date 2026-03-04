@@ -42,4 +42,11 @@ public class AuthController {
     public ResponseEntity<Result<String>> changePassword(@RequestBody @Valid ChangePasswordRequest request){
         return ResponseEntity.ok(authService.changePassword(request));
     }
+
+    @Operation(summary = "Refresh Token", description = "Generates a new short duration token using a valid refresh token")
+    @SecurityRequirements()
+    @PostMapping("/refresh")
+    public ResponseEntity<Result<AuthResponse>> refreshToken(@RequestBody @Valid RefreshTokenRequest request){
+        return ResponseEntity.ok(authService.refreshToken(request));
+    }
 }

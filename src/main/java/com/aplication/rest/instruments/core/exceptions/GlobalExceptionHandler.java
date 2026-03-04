@@ -2,7 +2,6 @@ package com.aplication.rest.instruments.core.exceptions;
 
 import com.aplication.rest.instruments.core.error_handling.ApiError;
 import com.aplication.rest.instruments.core.error_handling.Result;
-import org.hibernate.exception.DataException;
 import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;

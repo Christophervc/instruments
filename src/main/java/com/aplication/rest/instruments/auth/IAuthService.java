@@ -8,4 +8,5 @@ public interface IAuthService {
     Result<AuthResponse> login (LoginRequest request);
     Result<UserProfileDTO> getMe();
     Result<String> changePassword(ChangePasswordRequest request);
+    Result<AuthResponse> refreshToken(RefreshTokenRequest request);
 }

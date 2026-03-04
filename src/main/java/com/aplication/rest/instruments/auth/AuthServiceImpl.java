@@ -2,6 +2,8 @@ package com.aplication.rest.instruments.auth;
 
 import com.aplication.rest.instruments.auth.dto.*;
 import com.aplication.rest.instruments.auth.jwt.JwtService;
+import com.aplication.rest.instruments.auth.token.IRefreshTokenService;
+import com.aplication.rest.instruments.auth.token.RefreshToken;
 import com.aplication.rest.instruments.core.error_handling.Result;
 import com.aplication.rest.instruments.core.exceptions.NotFoundException;
 import com.aplication.rest.instruments.core.exceptions.ValidationException;
@@ -27,6 +29,7 @@ public class AuthServiceImpl implements IAuthService {
     private final PasswordEncoder passwordEncoder;
     private final JwtService jwtService;
     private final AuthenticationManager authenticationManager;
+    private final IRefreshTokenService refreshTokenService;
 
     @Override
     @Transactional
@@ -50,15 +53,16 @@ public class AuthServiceImpl implements IAuthService {
                 .active(true)
                 .build();
         //3. save in DB
-        userRepository.save(user);
+        User savedUser =userRepository.save(user);
         //4. generate token with extra claims
         Map<String, Object> extraClaims = new HashMap<>();
         extraClaims.put("name", user.getFirstName() + " " + user.getLastName());
         extraClaims.put("role", user.getRole().name());
 
-        String jwtToken = jwtService.generateToken(extraClaims, user);
+        String jwtAccessToken = jwtService.generateToken(extraClaims, user);
+        RefreshToken refreshToken = refreshTokenService.createRefreshToken(savedUser.getEmail());
 
-        return Result.success(new AuthResponse(jwtToken, "Register successfully"));
+        return Result.success(new AuthResponse(jwtAccessToken,  refreshToken.getToken(), "Register successfully" ));
     }
 
     @Override
@@ -70,9 +74,8 @@ public class AuthServiceImpl implements IAuthService {
                         request.password()
                 )
         );
-        //
         User user = userRepository.findByEmail(request.email())
-                .orElseThrow();
+                .orElseThrow(() -> new NotFoundException("User not found"));
 
         if (!user.getActive()) {
             throw new ValidationException("This account has been deactivated");
@@ -82,9 +85,12 @@ public class AuthServiceImpl implements IAuthService {
         extraClaims.put("name", user.getFirstName() + " " + user.getLastName());
         extraClaims.put("role", user.getRole().name());
 
-        String jwtToken = jwtService.generateToken(extraClaims, user);
+        String jwtAccessToken = jwtService.generateToken(extraClaims, user);
+        RefreshToken refreshToken = refreshTokenService.createRefreshToken(user.getEmail());
 
-        return Result.success(new AuthResponse(jwtToken, "Login successfully"));
+        return Result.success(
+                new AuthResponse(jwtAccessToken, refreshToken.getToken(), "Login successfully")
+        );
     }
 
     @Override
@@ -118,5 +124,25 @@ public class AuthServiceImpl implements IAuthService {
         user.setPassword(passwordEncoder.encode(request.newPassword()));
         userRepository.save(user);
         return Result.success("The password has been successfully updated.");
+    }
+
+    @Override
+    public Result<AuthResponse> refreshToken(RefreshTokenRequest request) {
+
+        return refreshTokenService.findByToken(request.refreshToken())
+                //verify token expiration if its expired throw error and removed from db
+                .map(refreshTokenService::verifyExpiration)
+                //get user associated with the token
+                .map(RefreshToken::getUser)
+                //generate new access token
+                .map(user-> {
+                    String newAccessToken = jwtService.generateToken(user);
+                    return Result.success(AuthResponse.builder()
+                            .accessToken(newAccessToken)
+                            .refreshToken(request.refreshToken())
+                            .message("token has been successfully updated")
+                            .build());
+                })
+                .orElseThrow(()-> new RuntimeException("Invalid Refresh Token or not found"));
     }
 }

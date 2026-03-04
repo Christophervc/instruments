@@ -1,4 +1,9 @@
 package com.aplication.rest.instruments.auth.dto;
 
-public record AuthResponse(String token, String message) {
+import lombok.Builder;
+
+@Builder
+public record AuthResponse(String accessToken,
+                           String refreshToken,
+                           String message) {
 }
