@@ -26,47 +26,25 @@ import static org.mockito.Mockito.*;
 @ExtendWith(MockitoExtension.class)
 class ProductServiceImplementTest {
 
-    @Mock
-    private ManufacturerRepository manufacturerRepository;
-    @Mock
-    private ManufacturerMapper manufacturerMapper;
-    @Mock
-    private ProductRepository productRepository;
-    @Mock
-    private ProductMapper productMapper;
-    @Mock
-    private ProductHelper productHelper;
+    @Mock private ManufacturerRepository manufacturerRepository;
+    @Mock private ProductRepository productRepository;
+    @Mock private ProductMapper productMapper;
+    @Mock private ProductHelper productHelper;
 
     @InjectMocks
     private ProductServiceImplement productService;
 
     private UUID productId;
     private Product product;
-    private ProductDTO productDTO;
 
     @BeforeEach
     void setUp() {
-        // Inicializamos datos básicos para reusar en los tests
-        UUID manufacturerId = UUID.randomUUID();
-        Manufacturer manufacturer = new Manufacturer();
-        manufacturer.setId(manufacturerId);
-        ManufacturerDTO manufacturerDTO = manufacturerMapper.toDTO(manufacturer);
-
         productId = UUID.randomUUID();
-
         product = new Product();
         product.setId(productId);
         product.setName("Guitarra Test");
         product.setStock(5);
-        product.setManufacturer(manufacturer);
         product.setActive(true);
-
-        productDTO = ProductDTO.builder()
-                .id(productId)
-                .name("Guitarra Test")
-                .stock(5)
-                .manufacturer(manufacturerDTO)
-                .build();
     }
 
     @Test
@@ -74,8 +52,10 @@ class ProductServiceImplementTest {
     void testSaveProduct_Success() {
         // Arrange (Preparar)
         UUID manufacturerId = UUID.randomUUID();
-        ManufacturerDTO manufacturerDTO = new ManufacturerDTO();
-        manufacturerDTO.setId(manufacturerId);
+        ManufacturerDTO manufacturerDTO = ManufacturerDTO.builder()
+                .id(manufacturerId)
+                .build();
+
         // crear un producto completo con marca
         ProductDTO inputDto = ProductDTO.builder()
                 .id(productId)
@@ -88,7 +68,7 @@ class ProductServiceImplementTest {
 
         // Simulamos el comportamiento de los Mocks
         when(productMapper.toEntity(any(ProductDTO.class))).thenReturn(product);
-        when(manufacturerRepository.findById(manufacturerDTO.getId())).thenReturn(Optional.of(manufacturerEntity));
+        when(manufacturerRepository.findById(manufacturerDTO.id())).thenReturn(Optional.of(manufacturerEntity));
         when(productHelper.generateSlug(anyString(), any(UUID.class))).thenReturn("guitarra-test");
         when(productRepository.save(any(Product.class))).thenReturn(product);
         when(productMapper.toDTO(any(Product.class))).thenReturn(inputDto);
@@ -99,7 +79,7 @@ class ProductServiceImplementTest {
         // Assert (Comprobar)
         assertTrue(result.isSuccess());
         assertNotNull(result.data());
-        assertEquals("Guitarra Test", result.data().getName());
+        assertEquals("Guitarra Test", result.data().name());
 
         // Verificamos que se haya llamado a save del repositorio
         verify(productRepository, times(1)).save(any(Product.class));
@@ -121,7 +101,7 @@ class ProductServiceImplementTest {
 
         // Assert
         assertTrue(result.isSuccess());
-        assertFalse(result.data().getActive()); // Comprobamos que el DTO devuelto dice false
+        assertFalse(result.data().active()); // Comprobamos que el DTO devuelto dice false
         assertFalse(product.getActive()); // Comprobamos que a la entidad original se le cambió a false
 
         // Verificamos que guardó el cambio en BD
@@ -145,7 +125,7 @@ class ProductServiceImplementTest {
         // Assert
         assertTrue(result.isSuccess());
         assertEquals(3, product.getStock()); // 5 - 2 = 3
-        assertEquals(3, result.data().getStock());
+        assertEquals(3, result.data().stock());
         verify(productRepository, times(1)).save(product);
     }
 
@@ -186,7 +166,7 @@ class ProductServiceImplementTest {
         // Assert
         assertTrue(result.isSuccess());
         assertEquals(10, product.getStock()); // 5 + 5 = 10
-        assertEquals(10, result.data().getStock());
+        assertEquals(10, result.data().stock());
         verify(productRepository, times(1)).save(product);
     }
 }
