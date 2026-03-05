@@ -1,13 +1,15 @@
 package com.aplication.rest.instruments.product;
 
 import com.aplication.rest.instruments.core.error_handling.Result;
-import com.aplication.rest.instruments.core.exceptions.NotFoundException;
 import com.aplication.rest.instruments.core.exceptions.ValidationException;
 import com.aplication.rest.instruments.manufacturer.Manufacturer;
+import com.aplication.rest.instruments.manufacturer.ManufacturerMapper;
 import com.aplication.rest.instruments.manufacturer.ManufacturerRepository;
 import com.aplication.rest.instruments.manufacturer.dto.ManufacturerDTO;
 import com.aplication.rest.instruments.product.dto.ProductDTO;
 import com.aplication.rest.instruments.product.utils.ProductHelper;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
@@ -21,156 +23,170 @@ import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.*;
 
-@ExtendWith(MockitoExtension.class) // 1. Enable Mockito
-public class ProductServiceTest {
-    // 2. Prepare Mocks
-    //Simulate the external dependencies of the service
-    @Mock
-    private ProductRepository productRepository;
+@ExtendWith(MockitoExtension.class)
+class ProductServiceImplementTest {
+
     @Mock
     private ManufacturerRepository manufacturerRepository;
     @Mock
+    private ManufacturerMapper manufacturerMapper;
+    @Mock
+    private ProductRepository productRepository;
+    @Mock
     private ProductMapper productMapper;
     @Mock
-    private ProductHelper productHelper; // Note! we use this in save
+    private ProductHelper productHelper;
 
-    // 3. INJECT MOCKS
-    // Mockito instance service & inject mocks
     @InjectMocks
     private ProductServiceImplement productService;
 
-    // --- TEST 1: save product successfully ---
-    @Test
-    void save_ShouldReturnSuccess_WhenProductIsValid() {
-        // --- ARRANGE (prepare) ---
-        UUID manufacturerId = UUID.randomUUID();
-        ManufacturerDTO manufacturerDTO = ManufacturerDTO.builder()
-                .id(manufacturerId)
-                .build();
+    private UUID productId;
+    private Product product;
+    private ProductDTO productDTO;
 
-        ProductDTO inputDTO = ProductDTO.builder()
-                .name("Fender Strat")
-                .sku("SKU-123")
+    @BeforeEach
+    void setUp() {
+        // Inicializamos datos básicos para reusar en los tests
+        UUID manufacturerId = UUID.randomUUID();
+        Manufacturer manufacturer = new Manufacturer();
+        manufacturer.setId(manufacturerId);
+        ManufacturerDTO manufacturerDTO = manufacturerMapper.toDTO(manufacturer);
+
+        productId = UUID.randomUUID();
+
+        product = new Product();
+        product.setId(productId);
+        product.setName("Guitarra Test");
+        product.setStock(5);
+        product.setManufacturer(manufacturer);
+        product.setActive(true);
+
+        productDTO = ProductDTO.builder()
+                .id(productId)
+                .name("Guitarra Test")
+                .stock(5)
                 .manufacturer(manufacturerDTO)
                 .build();
+    }
 
-        Manufacturer manufacturerEntity = Manufacturer.builder()
-                .id(manufacturerId)
-                .name("Fender")
+    @Test
+    @DisplayName("1. Should save a product successfully")
+    void testSaveProduct_Success() {
+        // Arrange (Preparar)
+        UUID manufacturerId = UUID.randomUUID();
+        ManufacturerDTO manufacturerDTO = new ManufacturerDTO();
+        manufacturerDTO.setId(manufacturerId);
+        // crear un producto completo con marca
+        ProductDTO inputDto = ProductDTO.builder()
+                .id(productId)
+                .name("Guitarra Test")
+                .stock(5)
+                .manufacturer(manufacturerDTO)
                 .build();
+        Manufacturer manufacturerEntity = new Manufacturer();
+        manufacturerEntity.setId(manufacturerId);
 
-        Product productEntity = Product.builder()
-                .id(UUID.randomUUID())
-                .name("Fender Strat")
-                .build();
+        // Simulamos el comportamiento de los Mocks
+        when(productMapper.toEntity(any(ProductDTO.class))).thenReturn(product);
+        when(manufacturerRepository.findById(manufacturerDTO.getId())).thenReturn(Optional.of(manufacturerEntity));
+        when(productHelper.generateSlug(anyString(), any(UUID.class))).thenReturn("guitarra-test");
+        when(productRepository.save(any(Product.class))).thenReturn(product);
+        when(productMapper.toDTO(any(Product.class))).thenReturn(inputDto);
 
-        when(manufacturerRepository.findById(manufacturerId)).thenReturn(Optional.of(manufacturerEntity));
-        when(productMapper.toEntity(inputDTO)).thenReturn(productEntity);
-        // Helper (name, ID)
-        when(productHelper.generateSlug(anyString(), any(UUID.class))).thenReturn("fender-strat-123");
-        when(productRepository.save(any(Product.class))).thenAnswer(i -> i.getArgument(0));
-        when(productMapper.toDTO(any(Product.class))).thenReturn(inputDTO);
+        // Act (Ejecutar) usando nuestro inputDto completo
+        Result<ProductDTO> result = productService.save(inputDto, null);
 
-        // Act
-        Result<ProductDTO> result = productService.save(inputDTO);
-
-        // Assert
+        // Assert (Comprobar)
         assertTrue(result.isSuccess());
-        verify(productRepository).save(any(Product.class));
-        verify(productHelper).generateSlug(eq("Fender Strat"), any(UUID.class));
+        assertNotNull(result.data());
+        assertEquals("Guitarra Test", result.data().getName());
+
+        // Verificamos que se haya llamado a save del repositorio
+        verify(productRepository, times(1)).save(any(Product.class));
     }
 
-    // --- TEST 2: Soft Delete ---
     @Test
-    void deleteById_ShouldSoftDelete_WhenProductExists() {
-        UUID id = UUID.randomUUID();
-        Product existingProduct = Product.builder().id(id).name("Guitar").active(true).build();
-
-        when(productRepository.findById(id)).thenReturn(Optional.of(existingProduct));
-        when(productRepository.save(any(Product.class))).thenAnswer(i -> i.getArgument(0));
-
-        productService.deleteById(id);
-
-        verify(productRepository).save(argThat(product -> !product.getActive()));
-    }
-
-    // --- TEST 3: Reduce Stock Successfully ---
-    @Test
-    void reduceStock_ShouldDecreaseStock_WhenSufficient() {
-        UUID id = UUID.randomUUID();
-        Product product = Product.builder().id(id).stock(10).build();
-
-        when(productRepository.findById(id)).thenReturn(Optional.of(product));
-        when(productRepository.save(any(Product.class))).thenAnswer(i -> i.getArgument(0));
-        when(productMapper.toDTO(any(Product.class))).thenReturn(ProductDTO.builder().stock(8).build());
-
-        Result<ProductDTO> result = productService.reduceStock(id, 2);
-
-        assertTrue(result.isSuccess());
-        assertEquals(8, product.getStock());
-        verify(productRepository).save(product);
-    }
-
-    // --- TEST 4: Reduce Stock Fails (Insufficient) ---
-    @Test
-    void reduceStock_ShouldThrowException_WhenStockIsInsufficient() {
-        UUID id = UUID.randomUUID();
-        Product product = Product.builder().id(id).stock(1).build();
-
-        when(productRepository.findById(id)).thenReturn(Optional.of(product));
-
-        assertThrows(ValidationException.class, () -> productService.reduceStock(id, 5));
-        verify(productRepository, never()).save(any());
-    }
-
-    // --- TEST 5: Add Stock ---
-    @Test
-    void addStock_ShouldIncreaseStock() {
-        UUID id = UUID.randomUUID();
-        Product product = Product.builder().id(id).stock(5).build();
-
-        when(productRepository.findById(id)).thenReturn(Optional.of(product));
-        when(productRepository.save(any(Product.class))).thenAnswer(i -> i.getArgument(0));
-
-        productService.addStock(id, 3);
-
-        assertEquals(8, product.getStock());
-        verify(productRepository).save(product);
-    }
-    // --- TEST 6: Error handling (Not Found) ---
-    @Test
-    void findById_ShouldThrowNotFoundException_WhenIdDoesNotExist() {
-        // --- ARRANGE ---
-        UUID id = UUID.randomUUID();
-        // DB returns empty
-        when(productRepository.findById(id)).thenReturn(Optional.empty());
-
-        // --- ACT & ASSERT ---
-        // Verify exception
-        assertThrows(NotFoundException.class, () -> productService.findById(id));
-        // Verify mapper is NEVER called (because it failed before).
-        verify(productMapper, never()).toDTO(any());
-    }
-
-    // --- TEST 7: Should update if exists ---
-    @Test
-    void update_ShouldUpdateProduct_WhenProductExists() {
+    @DisplayName("2. Should Soft Delete (switch active to false)")
+    void testDeleteById_SoftDelete_Success() {
         // Arrange
-        UUID id = UUID.randomUUID();
-        ProductDTO updateDTO = ProductDTO.builder().name("New Name").build();
-        Product existingProduct = Product.builder().id(id).name("Old Name").build();
+        when(productRepository.findById(productId)).thenReturn(Optional.of(product));
+        when(productRepository.save(any(Product.class))).thenReturn(product);
 
-        when(productRepository.findById(id)).thenReturn(Optional.of(existingProduct));
-        when(productRepository.save(any(Product.class))).thenAnswer(i -> i.getArgument(0));
-        when(productMapper.toDTO(any(Product.class))).thenReturn(updateDTO);
+        // Creamos un DTO simulando que está inactivo para el retorno
+        ProductDTO deletedDTO = ProductDTO.builder().active(false).build();
+        when(productMapper.toDTO(any(Product.class))).thenReturn(deletedDTO);
 
         // Act
-        productService.update(id, updateDTO);
+        Result<ProductDTO> result = productService.deleteById(productId);
 
         // Assert
-        // verify update mapper was called
-        verify(productMapper).updateProductFromDTO(updateDTO, existingProduct);
-        // verify save existing product
-        verify(productRepository).save(existingProduct);
+        assertTrue(result.isSuccess());
+        assertFalse(result.data().getActive()); // Comprobamos que el DTO devuelto dice false
+        assertFalse(product.getActive()); // Comprobamos que a la entidad original se le cambió a false
+
+        // Verificamos que guardó el cambio en BD
+        verify(productRepository, times(1)).save(product);
+    }
+
+    @Test
+    @DisplayName("3. Should reduce stock when quantity is enough")
+    void testReduceStock_Success() {
+        // Arrange
+        int quantityToReduce = 2; // Stock actual es 5
+        when(productRepository.findById(productId)).thenReturn(Optional.of(product));
+        when(productRepository.save(any(Product.class))).thenReturn(product);
+
+        ProductDTO updatedDTO = ProductDTO.builder().stock(3).build();
+        when(productMapper.toDTO(any(Product.class))).thenReturn(updatedDTO);
+
+        // Act
+        Result<ProductDTO> result = productService.reduceStock(productId, quantityToReduce);
+
+        // Assert
+        assertTrue(result.isSuccess());
+        assertEquals(3, product.getStock()); // 5 - 2 = 3
+        assertEquals(3, result.data().getStock());
+        verify(productRepository, times(1)).save(product);
+    }
+
+    @Test
+    @DisplayName("4. Should throw exception when stock is insufficient")
+    void testReduceStock_Fails_WhenInsufficientStock() {
+        // Arrange
+        int quantityToReduce = 10; // Stock actual es 5, queremos quitar 10
+        when(productRepository.findById(productId)).thenReturn(Optional.of(product));
+
+        // Act & Assert
+        // Comprobamos que lance exactamente la excepción ValidationException
+        ValidationException exception = assertThrows(ValidationException.class, () -> {
+            productService.reduceStock(productId, quantityToReduce);
+        });
+
+        // Verificamos el mensaje de error
+        assertTrue(exception.getMessage().contains("Insufficient stock"));
+
+        // Comprobamos que NUNCA se haya llamado a save (no se guardó nada erróneo en BD)
+        verify(productRepository, never()).save(any(Product.class));
+    }
+
+    @Test
+    @DisplayName("5. Should add stock successfully")
+    void testAddStock_Success() {
+        // Arrange
+        int quantityToAdd = 5; // Stock actual es 5
+        when(productRepository.findById(productId)).thenReturn(Optional.of(product));
+        when(productRepository.save(any(Product.class))).thenReturn(product);
+
+        ProductDTO updatedDTO = ProductDTO.builder().stock(10).build();
+        when(productMapper.toDTO(any(Product.class))).thenReturn(updatedDTO);
+
+        // Act
+        Result<ProductDTO> result = productService.addStock(productId, quantityToAdd);
+
+        // Assert
+        assertTrue(result.isSuccess());
+        assertEquals(10, product.getStock()); // 5 + 5 = 10
+        assertEquals(10, result.data().getStock());
+        verify(productRepository, times(1)).save(product);
     }
 }

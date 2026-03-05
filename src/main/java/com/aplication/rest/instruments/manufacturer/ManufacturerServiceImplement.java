@@ -4,18 +4,17 @@ import com.aplication.rest.instruments.manufacturer.dto.ManufacturerDTO;
 import com.aplication.rest.instruments.core.error_handling.ApiError;
 import com.aplication.rest.instruments.core.error_handling.Result;
 import com.aplication.rest.instruments.core.exceptions.NotFoundException;
-import org.springframework.beans.factory.annotation.Autowired;
+import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
 import java.util.UUID;
 
 @Service
+@RequiredArgsConstructor
 public class ManufacturerServiceImplement implements IManufacturerService {
-    @Autowired
-    private ManufacturerRepository manufacturerRepository;
-    @Autowired
-    private ManufacturerMapper manufacturerMapper;
+    private final ManufacturerRepository manufacturerRepository;
+    private final ManufacturerMapper manufacturerMapper;
 
     @Override
     public Result<List<ManufacturerDTO>> findAll() {

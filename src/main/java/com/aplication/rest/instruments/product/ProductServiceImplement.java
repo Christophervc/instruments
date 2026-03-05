@@ -17,7 +17,6 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.cache.annotation.CacheEvict;
 import org.springframework.cache.annotation.Cacheable;
 import org.springframework.transaction.annotation.Transactional;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.domain.Specification;
@@ -34,15 +33,10 @@ import java.util.stream.Stream;
 @RequiredArgsConstructor
 public class ProductServiceImplement implements IProductService {
 
-    @Autowired
-    private ManufacturerRepository manufacturerRepository;
-    @Autowired
-    private ProductRepository productRepository;
-    @Autowired
-    private ProductMapper productMapper;
-    @Autowired
-    private ProductHelper productHelper;
-
+    private final ManufacturerRepository manufacturerRepository;
+    private final ProductRepository productRepository;
+    private final ProductMapper productMapper;
+    private final ProductHelper productHelper;
     private final StorageService storageService;
 
     @Override
