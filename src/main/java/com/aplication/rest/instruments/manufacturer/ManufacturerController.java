@@ -22,7 +22,8 @@ public class ManufacturerController {
     private IManufacturerService manufacturerService;
 
     @GetMapping()
-    public ResponseEntity<Result<List<ManufacturerDTO>>> findAll(@RequestParam(required = false) String name){
+    public ResponseEntity<Result<List<ManufacturerDTO>>> findAll(
+            @RequestParam(required = false) String name){
         if (name != null){
             return  ResponseEntity.ok(manufacturerService.findByName(name));
         }
@@ -37,7 +38,7 @@ public class ManufacturerController {
     @PostMapping()
     public ResponseEntity<Result<ManufacturerDTO>> save(@Valid @RequestBody ManufacturerDTO manufacturerDTO) throws URISyntaxException {
         Result<ManufacturerDTO> result = manufacturerService.save(manufacturerDTO);
-        return ResponseEntity.created(new URI("/api/v1/manufacturers/" + result.data().getId()))
+        return ResponseEntity.created(new URI("/api/v1/manufacturers/" + result.data().id()))
                 .body(result);
     }
     @PutMapping("/{id}")

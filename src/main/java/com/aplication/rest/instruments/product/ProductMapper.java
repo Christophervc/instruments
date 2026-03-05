@@ -13,8 +13,6 @@ public interface ProductMapper {
     @Mapping(target = "id", ignore = true)
     Product toEntity(ProductDTO productDTO);
 
-    List<ProductDTO> toDTOList(List<Product> products);
-
     @Mapping(target = "createdAt", ignore = true)
     @Mapping(target = "updatedAt", ignore = true)
     @Mapping(target = "createdBy", ignore = true)

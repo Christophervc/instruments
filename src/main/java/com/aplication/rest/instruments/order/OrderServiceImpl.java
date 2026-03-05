@@ -62,18 +62,18 @@ public class OrderServiceImpl implements IOrderService {
         for (OrderItemRequest itemRequest : request.products()) {
             Result<ProductDTO> result = productService.reduceStock(itemRequest.productId(), itemRequest.quantity());
             ProductDTO productDTO = result.data();
-            Product productRef = productRepository.getReferenceById(productDTO.getId());
+            Product productRef = productRepository.getReferenceById(productDTO.id());
 
             OrderItem orderItem = OrderItem.builder()
                     .order(order)
                     .product(productRef)
-                    .productName(productDTO.getName())//snapshot product name
+                    .productName(productDTO.name())//snapshot product name
                     .quantity(itemRequest.quantity())
-                    .price(productDTO.getPrice())//snapshot product price
+                    .price(productDTO.price())//snapshot product price
                     .build();
             orderItems.add(orderItem);
 
-            BigDecimal subtotal = productDTO.getPrice().multiply(new BigDecimal(itemRequest.quantity()));
+            BigDecimal subtotal = productDTO.price().multiply(new BigDecimal(itemRequest.quantity()));
             total = total.add(subtotal);
         }
         order.setItems(orderItems);
@@ -122,10 +122,6 @@ public class OrderServiceImpl implements IOrderService {
             Specification<Order> spec = OrderSpecification.fromCriteria(criteria);
             ordersPage = orderRepository.findAll(spec, pageable);
         }
-        /*
-        Specification<Order> spec = OrderSpecification.fromCriteria(criteria);
-        Page<Order> ordersPage = orderRepository.findAll(spec, pageable);
-        */
         Page<OrderDTO> dtoOrdersPage = ordersPage.map(orderMapper::toDTO);
         return Result.success(dtoOrdersPage);
     }

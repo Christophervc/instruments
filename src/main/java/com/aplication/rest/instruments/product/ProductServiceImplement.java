@@ -64,12 +64,12 @@ public class ProductServiceImplement implements IProductService {
     @Override
     @Transactional
     public Result<ProductDTO> save(ProductDTO productDTO, MultipartFile file) {
-        if (productDTO.getManufacturer() == null || productDTO.getManufacturer().getId() == null) {
+        if (productDTO.manufacturer() == null || productDTO.manufacturer().id() == null) {
             throw new ValidationException("Manufacturer is mandatory");
         }
         Product product = productMapper.toEntity(productDTO);
 
-        UUID manufacturerId = productDTO.getManufacturer().getId();
+        UUID manufacturerId = productDTO.manufacturer().id();
         Manufacturer manufacturer = manufacturerRepository.findById(manufacturerId)
                 .orElseThrow(() -> new NotFoundException("Manufacturer not found with id: " + manufacturerId));
         product.setManufacturer(manufacturer);
@@ -79,22 +79,21 @@ public class ProductServiceImplement implements IProductService {
         }
         product.setSlug(productHelper.generateSlug(product.getName(), product.getId()));
 
-        if (productDTO.getSku() != null) {
-            Optional<Product> existingSku = productRepository.findBySku(productDTO.getSku());
+        if (productDTO.sku() != null) {
+            Optional<Product> existingSku = productRepository.findBySku(productDTO.sku());
             if (existingSku.isPresent()) {
-                throw new ValidationException("SKU: " + productDTO.getSku() + " already exists ");
+                throw new ValidationException("SKU: " + productDTO.sku() + " already exists ");
             }
-            product.setSku(productDTO.getSku());
+            product.setSku(productDTO.sku());
         }
-        product.setActive(true);
-        Product savedProduct = productRepository.save(product);
 
         if (file != null && !file.isEmpty()) {
             String imageUrl = storageService.uploadImage(file);
-            savedProduct.setImage_url(imageUrl);
-            productRepository.save(savedProduct);
+            product.setImage_url(imageUrl);
         }
 
+        product.setActive(true);
+        Product savedProduct = productRepository.save(product);
         ProductDTO savedProductDTO = productMapper.toDTO(savedProduct);
         return Result.success(savedProductDTO);
     }
@@ -107,22 +106,22 @@ public class ProductServiceImplement implements IProductService {
         Product existingProduct = productRepository.findById(id)
                 .orElseThrow(() -> new NotFoundException("Product not found with id: " + id));
 
-        if (productDTO.getSku() != null && !productDTO.getSku().equals(existingProduct.getSku())) {
-            Optional<Product> ownerOfSku = productRepository.findBySku(productDTO.getSku());
+        if (productDTO.sku() != null && !productDTO.sku().equals(existingProduct.getSku())) {
+            Optional<Product> ownerOfSku = productRepository.findBySku(productDTO.sku());
             if (ownerOfSku.isPresent() && !ownerOfSku.get().getId().equals(id)) {
-                throw new ValidationException("SKU " + productDTO.getSku() + " is already in use");
+                throw new ValidationException("SKU " + productDTO.sku() + " is already in use");
             }
         }
 
-        if (productDTO.getName() != null && !productDTO.getName().equals(existingProduct.getName())) {
-            String newSlug = productHelper.generateSlug(productDTO.getName(), id);
+        if (productDTO.name() != null && !productDTO.name().equals(existingProduct.getName())) {
+            String newSlug = productHelper.generateSlug(productDTO.name(), id);
             existingProduct.setSlug(newSlug);
         }
 
         productMapper.updateProductFromDTO(productDTO, existingProduct);
 
-        if (productDTO.getManufacturer() != null && productDTO.getManufacturer().getId() != null) {
-            UUID newManuId = productDTO.getManufacturer().getId();
+        if (productDTO.manufacturer() != null && productDTO.manufacturer().id() != null) {
+            UUID newManuId = productDTO.manufacturer().id();
             UUID currentManuId = existingProduct.getManufacturer().getId();
 
             if (!newManuId.equals(currentManuId)) {
